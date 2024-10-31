@@ -1,6 +1,7 @@
 #include<stdio.h>
+#include<prompt.h>
 
 int main(){
-  printf("FSHELL, the shell of the future ;)\n");
+  print_prompt(1);
   return 0;
 }
