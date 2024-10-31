@@ -2,6 +2,6 @@
 #include<prompt.h>
 
 int main(){
-  print_prompt(1);
+  int result = print_prompt(1); // storing the result for potential debugging later on
   return 0;
 }
