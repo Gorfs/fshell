@@ -7,6 +7,7 @@
 char DELIMITER = ' ';
 
 int len_tokens(char* input){
+    // retourn le nombre de tokens dans le string d'input
     // returns the number of tokens in the input string
     int token_count = 1;
     for (int i = 0 ; i < strlen(input); i++){
@@ -17,7 +18,8 @@ int len_tokens(char* input){
     return token_count;
 }
 
-// returns the list of tokens or NULL if an error occurs
+// retourn un tableau de string et NULL si il y a une erreur
+// le tableau de TOKEN contient un null terminator NULL a la fin
 char** tokenise(char* input){
     // returns a list of each token from the input string
     char** result = NULL;
@@ -27,7 +29,7 @@ char** tokenise(char* input){
     token_count = len_tokens(input);
     
     // allocate the result array
-    result = malloc(((token_count) * sizeof(char*)));
+    result = malloc(((token_count + 1) * sizeof(char*)));
     //error handling
     if (result == NULL){
         perror("error allocating space in tokenisation.c");
@@ -35,7 +37,8 @@ char** tokenise(char* input){
     }
 
     for(int j = 0 ; j <= token_count; j++){
-        // find the length of the token
+
+        // on trouve la longeur du token
         int token_length = 0;
         while(input[token_length] != DELIMITER && input[token_length] != '\n' && input[token_length] != '\0'){
             token_length++;
@@ -47,20 +50,21 @@ char** tokenise(char* input){
             perror("error allocating space in tokenisation.c");
             goto error;
         }
-        // copy the token into the result array
+        // copy le token dans le resultat
         strncpy(result[j], input, token_length);
 
         if (j != token_count - 1){
-            // move the input pointer to the next token
-            input += token_length + 1; // the +1 is to skip the delimiter
+            // on bouge le cursor devant pour le prochain token
+            input += token_length + 1; // the +1 pour eviter le delimiteur
         }else{
             // avoiding segmentation fault
             break;
         }
 
     }
-    // can't free the result as if we do the tokens will be lost
-    // pas tres encapsulatoir lol return result;
+    //  on peut pas free() le result ici car on doit le retourner
+    // pas tres encapsulatoir lol;
+    result[token_count] = NULL;
     return result;
 
     error:
