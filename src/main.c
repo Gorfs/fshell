@@ -16,7 +16,7 @@ void print_tokens(char** tokens){
 }
 
 int main(){
-  char* input = malloc(1000*sizeof(char)); // TODO: the max size should be changed later  
+  char* input = malloc(PROMPT_MAX_SIZE*sizeof(char)); // TODO: the max size should be changed later  
   while (1){
     if ( print_prompt(1) == -1){
     // error handling
@@ -27,7 +27,7 @@ int main(){
       perror("error allocating space in main.c");
       return -1;
     }
-    fgets(input, 1000* sizeof(char), stdin);
+    fgets(input, PROMPT_MAX_SIZE* sizeof(char), stdin);
     // tokenise the input
     char** tokens = tokenise(input);
     print_tokens(tokens);
