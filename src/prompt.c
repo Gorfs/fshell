@@ -1,11 +1,11 @@
-#include <prompt.h> // even though technically not needed, it's good practice to include the header file of the source file
 #include <unistd.h> // used for getcwd()
+#include <prompt.h> // even though technically not needed, it's good practice to include the header file of the source file
 #include <stdlib.h> // used for malloc()
 #include <stdio.h> // used for debugging mostly
 #include <string.h> // used for strlen()
 
 
-const char* prompt_suffix = "fshell> ";
+const char* prompt_suffix = "$> ";
 
 // prints the prompt the file_descriptor, returns -1 if an error occurs, 0 otherwise./
 int print_prompt(int file_descriptor){
