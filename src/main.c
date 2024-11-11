@@ -16,9 +16,11 @@ void print_tokens(char** tokens){
 }
 
 int main(){
+  int output = 2; // output where we write the prompt, 2 is the standard error output
+
   char* input = malloc(PROMPT_MAX_SIZE*sizeof(char)); // TODO: the max size should be changed later  
   while (1){
-    if ( print_prompt(1) == -1){
+    if ( print_prompt(output) == -1){
     // error handling
       perror("error printing prompt in main.c");
       return -1;
