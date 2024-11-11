@@ -37,7 +37,7 @@ int main(){
 
     if (strcmp(tokens[0], "pwd") == 0) // Check if the first token is "pwd"
     {
-      if (command_pwd(1, tokens) == -1)
+      if (command_pwd(1) == -1)
       {
         perror("error executing pwd command in main.c");
         return -1;
