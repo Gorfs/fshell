@@ -18,11 +18,12 @@ void print_tokens(char** tokens){
 }
 
 int main(){
-  char* input = malloc(PROMPT_MAX_SIZE*sizeof(char)); // TODO: the max size should be changed later  
-  while (1)
-  {
-    if ( print_prompt(1) == -1){
-      // error handling
+  int output = 2; // output where we write the prompt, 2 is the standard error output
+
+  char* input = malloc(PROMPT_MAX_SIZE*sizeof(char)); // TODO: the max size should be changed later
+  while (1){
+    if ( print_prompt(output) == -1){
+    // error handling
       perror("error printing prompt in main.c");
       return -1;
     }
@@ -37,7 +38,7 @@ int main(){
 
     if (strcmp(tokens[0], "pwd") == 0) // Check if the first token is "pwd"
     {
-      if (command_pwd(1) == -1)
+      if (command_pwd(output) == -1)
       {
         perror("error executing pwd command in main.c");
         return -1;
