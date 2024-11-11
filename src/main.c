@@ -1,9 +1,11 @@
-#include<stdio.h>
+#include <stdio.h>
 #include <string.h>
-#include<prompt.h>
+#include <stdlib.h>
+#include <unistd.h>
+// personal files includes
+#include <prompt.h>
 #include <tokenisation.h>
-#include<stdlib.h>
-
+#include <pwd.h>
 
 // TODO: DEBUGGING FUNCTION TO BE REMOVED LATER 
 // on peut garder la fonction si on enleve le printf et on utiliser notre fonction IO
@@ -18,13 +20,13 @@ void print_tokens(char** tokens){
 int main(){
   int output = 2; // output where we write the prompt, 2 is the standard error output
 
-  char* input = malloc(PROMPT_MAX_SIZE*sizeof(char)); // TODO: the max size should be changed later  
+  char* input = malloc(PROMPT_MAX_SIZE*sizeof(char)); // TODO: the max size should be changed later
   while (1){
     if ( print_prompt(output) == -1){
     // error handling
       perror("error printing prompt in main.c");
       return -1;
-    };
+    }
     if(input == NULL){
       perror("error allocating space in main.c");
       return -1;
@@ -33,6 +35,15 @@ int main(){
     // tokenise the input
     char** tokens = tokenise(input);
     print_tokens(tokens);
+
+    if (strcmp(tokens[0], "pwd") == 0) // Check if the first token is "pwd"
+    {
+      if (command_pwd(output) == -1)
+      {
+        perror("error executing pwd command in main.c");
+        return -1;
+      }
+    }
 
     if (strcmp(tokens[0], "exit") == 0){
       // break out of the loop
