@@ -8,7 +8,7 @@
 
 // prints the current working directory to the file_descriptor,
 // returns -1 if an error occurs, 0 otherwise
-int command_pwd(int file_descriptor, char** tokens)
+int command_pwd(int file_descriptor)
 {
     // Initialize the working directory string
     char* dir_string = NULL;
