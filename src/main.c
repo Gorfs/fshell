@@ -6,6 +6,7 @@
 #include <prompt.h>
 #include <tokenisation.h>
 #include <pwd.h>
+#include <exit.h>
 
 // TODO: DEBUGGING FUNCTION TO BE REMOVED LATER 
 // on peut garder la fonction si on enleve le printf et on utiliser notre fonction IO
@@ -19,6 +20,7 @@ void print_tokens(char** tokens){
 
 int main(){
   int output = 2; // output where we write the prompt, 2 is the standard error output
+  int last_val = 0; // value of the last command executed
 
   char* input = malloc(PROMPT_MAX_SIZE*sizeof(char)); // TODO: the max size should be changed later
   while (1){
@@ -32,13 +34,17 @@ int main(){
       return -1;
     }
     fgets(input, PROMPT_MAX_SIZE* sizeof(char), stdin);
+    if (feof(stdin)){
+      return command_exit(last_val);
+    }
     // tokenise the input
     char** tokens = tokenise(input);
     print_tokens(tokens);
 
     if (strcmp(tokens[0], "pwd") == 0) // Check if the first token is "pwd"
     {
-      if (command_pwd(output) == -1)
+      last_val = command_pwd(output);
+      if (last_val == -1)
       {
         perror("error executing pwd command in main.c");
         return -1;
@@ -46,8 +52,15 @@ int main(){
     }
 
     if (strcmp(tokens[0], "exit") == 0){
-      // break out of the loop
-      return 0;
+      if (len_tokens(input) > 2){
+        write(STDERR_FILENO, "error: too many arguments\n", 27);
+      }
+      else if (len_tokens(input) == 2){
+        return command_exit(atoi(tokens[1]));
+      }
+      else{
+        return command_exit(last_val);
+      }
     }
   }
 }
