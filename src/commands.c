@@ -46,7 +46,7 @@ void run_command(char** command){
         if (pid == 0){
             // child process
             execvp(command_name, command);
-
+            exit(1);
             // if the execvp function returns, there was an error:
             perror("error executing the command");
         }else{
