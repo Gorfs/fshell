@@ -5,7 +5,7 @@
 #include <string.h> // used for strlen()
 
 
-const char* prompt_suffix = "$> ";
+const char* prompt_suffix = "$ ";
 
 // prints the prompt the file_descriptor, returns -1 if an error occurs, 0 otherwise./
 int print_prompt(int file_descriptor){
@@ -17,7 +17,7 @@ int print_prompt(int file_descriptor){
         perror("can't find current working directory in prompt.c");
         goto error;
     }else {
-        int prompt_len = strlen(current_working_directory) + strlen(prompt_suffix) + 3; // the 3 extra characteurs are the \0 , " ", ">"
+        int prompt_len = strlen(current_working_directory) + strlen(prompt_suffix) + 5; // the extra characteurs are the \0 , " ", and the recent execution status
         // allocation de la memoire pour le string du prompt
         prompt = malloc(prompt_len);
         // error handling
@@ -25,8 +25,12 @@ int print_prompt(int file_descriptor){
             perror("error allocating space in prompt.c");
             goto error;
         }
+        char* status = getenv("?");
+        if (status == NULL){
+            status = "0";
+        }
          // Construct the prompt using snprintf
-        snprintf(prompt, prompt_len, "%s> %s", current_working_directory, prompt_suffix);
+        snprintf(prompt, prompt_len, "[%s]%s%s",status, current_working_directory, prompt_suffix);
         if (write(file_descriptor, prompt, strlen(prompt)) == -1){
             perror("error writting prompt in prompt.c");
             goto error;

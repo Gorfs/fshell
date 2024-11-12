@@ -35,7 +35,6 @@ int run_command(char** command){
         printf("running internal command %s\n", command_name);
     }else{
         // make a new process
-        char* args = command[1];
         pid_t pid = fork();
         if (pid == 0){
             // child process
@@ -48,12 +47,12 @@ int run_command(char** command){
             // parent process
             int status;
             waitpid(pid, &status, 0);
-            if (WIFEXITED(status)){
-                return WEXITSTATUS(status);
-            }else{
-                return status;
-            }
-        }
+            // setting env status
+            char* status_str = malloc(4);
+            sprintf(status_str, "%d", status);
+            setenv("?", status_str, 1);
+            free(status_str);
+       }
     }
 }
 // not requried but could be useful later down the line
