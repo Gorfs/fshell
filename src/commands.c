@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <tokenisation.h>
+#include <sys/wait.h>
 #include <commands.h>
 #include <unistd.h>
 #include <string.h>
-#include "exit.h"
-#include "pwd.h"
+#include <exit.h>
+#include <pwd.h>
 // temporary to use printf for debugging
 #include <stdio.h>
 
