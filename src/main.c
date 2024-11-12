@@ -55,6 +55,9 @@ int main(){
       if (len_tokens(input) > 2){
         write(STDERR_FILENO, "error: too many arguments\n", 27);
       }
+      else if (len_tokens(input) == 2){
+        return command_exit(atoi(tokens[1]));
+      }
       else{
         return command_exit(last_val);
       }
