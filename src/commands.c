@@ -3,22 +3,24 @@
 #include <commands.h>
 #include <unistd.h>
 #include <string.h>
+#include "exit.h"
+#include "pwd.h"
 // temporary to use printf for debugging
 #include <stdio.h>
 
 // list of internal commands
-char* internal_commands[] = { // Array of string pointers
-        "cd",
-        "exit",
-        "pwd",
-        NULL // Important: NULL terminator if you want to iterate easily
-    };
-
+char* internal_commands[] = {"exit", "pwd", NULL};
 
 int is_internal_command(char* command_name){
     // check if the command is an internal command (just checking one for now)
-    if (strcmp(command_name, internal_commands[0]) == 0){
-        return 1;
+
+    char* command_to_check = internal_commands[0];
+    int i = 0;
+    while(command_to_check[i]){
+        if (strcmp(command_name, command_to_check) == 0){
+            return 1;
+        };
+        i++;
     }
     return 0;
 }
@@ -28,7 +30,15 @@ void run_command(char** command){
     // determine if the command is internal or external
     if (is_internal_command(command_name) == 1){
         // run the internal command
-        printf("running internal command %s\n", command_name);
+        // there must be a cleaner way to do this, this is just sad.
+        if(strcmp(command_name, "exit") == 0){
+            command_exit(0);
+        }else if (strcmp(command_name, "pwd") == 0){
+            command_pwd(1);
+        }else{
+            // error handling
+            perror("error running internal command");
+        }
     }else{
         // make a new process
         pid_t pid = fork();
