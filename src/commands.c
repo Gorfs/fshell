@@ -23,13 +23,9 @@ int is_internal_command(char* command_name){
     return 0;
 }
 
-int run_command(char** command){
+void run_command(char** command){
     char* command_name = command[0];
-    char** args = command + 1; // array of the arguments
-
     // determine if the command is internal or external
-    // search for the command in the list of internal commands
-
     if (is_internal_command(command_name) == 1){
         // run the internal command
         printf("running internal command %s\n", command_name);
@@ -42,7 +38,6 @@ int run_command(char** command){
 
             // if the execvp function returns, there was an error:
             perror("error executing the command");
-            return -1;
         }else{
             // parent process
             int status;
