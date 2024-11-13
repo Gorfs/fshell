@@ -1,9 +1,9 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -g -Iinclude  # -Wall for warnings, -Werror to treat warnings as errors, -g for debugging, -I for include directory
+CFLAGS = -Wall -Wextra -g -Iinclude  # -Wall for warnings, -Werror to treat warnings as errors, -g for debugging, -I for include directory
 
 # Source files (add more as needed)
-SRCS = src/main.c  src/prompt.c src/tokenisation.c src/pwd.c src/exit.c
+SRCS = src/main.c  src/prompt.c src/tokenisation.c src/commands.c src/pwd.c src/exit.c
 OBJS = $(SRCS:src/%.c=build/%.o) # Object files in build directory
 
 # Executable name

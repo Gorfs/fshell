@@ -10,7 +10,7 @@ int len_tokens(char* input){
     // retourn le nombre de tokens dans le string d'input
     // returns the number of tokens in the input string
     int token_count = 1;
-    for (int i = 0 ; i < strlen(input); i++){
+    for (size_t i = 0 ; i < strlen(input); i++){
         if (input[i] == DELIMITER){
             token_count++;
         }

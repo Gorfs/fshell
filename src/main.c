@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-// personal files includes
 #include <prompt.h>
-#include <tokenisation.h>
+#include <commands.h>
 #include <pwd.h>
+#include <tokenisation.h>
+#include <stdlib.h>
 #include <exit.h>
 
 // TODO: DEBUGGING FUNCTION TO BE REMOVED LATER 
@@ -34,33 +33,20 @@ int main(){
       return -1;
     }
     fgets(input, PROMPT_MAX_SIZE* sizeof(char), stdin);
+
     if (feof(stdin)){
       return command_exit(last_val);
     }
     // tokenise the input
     char** tokens = tokenise(input);
     print_tokens(tokens);
-
-    if (strcmp(tokens[0], "pwd") == 0) // Check if the first token is "pwd"
-    {
-      last_val = command_pwd(output);
-      if (last_val == -1)
-      {
-        perror("error executing pwd command in main.c");
-        return -1;
-      }
-    }
-
+    run_command(tokens);
     if (strcmp(tokens[0], "exit") == 0){
-      if (len_tokens(input) > 2){
-        write(STDERR_FILENO, "error: too many arguments\n", 27);
-      }
-      else if (len_tokens(input) == 2){
-        return command_exit(atoi(tokens[1]));
-      }
-      else{
-        return command_exit(last_val);
-      }
+      // break out of the loop
+      free(tokens);
+      return 0;
+    }else{
+
     }
   }
 }
