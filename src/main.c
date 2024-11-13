@@ -12,7 +12,7 @@
 void print_tokens(char** tokens){
   // on suppose que tokens est une liste valid de strings
   for(int i = 0 ; tokens[i] != NULL; i++){
-    printf("token %d : %s    ",i, tokens[i]);
+    printf("token %d : \"%s\"    ",i, tokens[i]);
   } 
   printf("\n");
 }
