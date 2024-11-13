@@ -4,14 +4,12 @@
 #include <string.h> // gonna be needed for string standard library functions
 
 
-char DELIMITER = ' ';
-
-int len_tokens(char* input){
+int len_tokens(char* input, char delimiter){
     // retourn le nombre de tokens dans le string d'input
     // returns the number of tokens in the input string
     int token_count = 1;
     for (size_t i = 0 ; i < strlen(input); i++){
-        if (input[i] == DELIMITER){
+        if (input[i] == delimiter){
             token_count++;
         }
     }
@@ -20,13 +18,13 @@ int len_tokens(char* input){
 
 // retourn un tableau de string et NULL si il y a une erreur
 // le tableau de TOKEN contient un null terminator NULL a la fin
-char** tokenise(char* input){
+char** tokenise(char* input, char delimiter){
     // returns a list of each token from the input string
     char** result = NULL;
     int token_count = 1;
     
     // premiere passage pars la liste pour trouver sa longeur
-    token_count = len_tokens(input);
+    token_count = len_tokens(input, delimiter);
     
     // allocate the result array
     result = malloc(((token_count + 1) * sizeof(char*)));
@@ -45,7 +43,7 @@ char** tokenise(char* input){
             if (input[token_length] == '"') // if we find a quote we toggle the text flag
                 text = !text;
 
-            if (input[token_length] == DELIMITER) // if we find a delimiter we check if we are in a text or not
+            if (input[token_length] == delimiter) // if we find a delimiter we check if we are in a text or not
             {
                 if (text) // if we are in a text we continue and remove the delimiter from the count
                     token_count--;

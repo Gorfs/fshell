@@ -39,19 +39,19 @@ int main(){
       return command_exit(last_val);
     }
     // tokenise the input
-    char** tokens = tokenise(input);
-    // print_tokens(tokens);
+    char** tokens = tokenise(input, ' ');
+    print_tokens(tokens);
     run_command(tokens);
     if (strcmp(tokens[0], "exit") == 0){
       // break out of the loop
       if (tokens[1] != NULL) 
       {
-	  int val = atoi(tokens[1]);
+	  last_val = atoi(tokens[1]);
 	  free(tokens);
-	  return val;
+	  return last_val;
       }
       free(tokens);
-      return 0;
+      return last_val;
     }else{
 
     }
