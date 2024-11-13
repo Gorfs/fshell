@@ -28,7 +28,6 @@ int is_internal_command(char* command_name){
 
 void run_command(char** command){
     char* command_name = command[0];
-    printf("the command name is %s\n", command_name);
     // determine if the command is internal or external
     if (is_internal_command(command_name) == 1){
         // run the internal command
@@ -38,7 +37,6 @@ void run_command(char** command){
         }else if (strcmp(command_name, "pwd") == 0){
             command_pwd(1);
         }else if (strcmp(command_name, "cd") == 0){
-            printf("command cd\n");
             command_cd(command);
         }else{
             // error handling
