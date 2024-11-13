@@ -40,7 +40,18 @@ char** tokenise(char* input){
 
         // on trouve la longeur du token
         int token_length = 0;
-        while(input[token_length] != DELIMITER && input[token_length] != '\n' && input[token_length] != '\0'){
+        int text = 0; // flag that indicates if we are in a text or not
+        while(input[token_length] != '\n' && input[token_length] != '\0'){
+            if (input[token_length] == '"') // if we find a quote we toggle the text flag
+                text = !text;
+
+            if (input[token_length] == DELIMITER) // if we find a delimiter we check if we are in a text or not
+            {
+                if (text) // if we are in a text we continue and remove the delimiter from the count
+                    token_count--;
+                else // if we are not in a text we break from the loop
+                    break;
+            }
             token_length++;
         }
         // allocate the memory for the token
