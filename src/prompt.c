@@ -12,11 +12,25 @@ int print_prompt(int file_descriptor){
     char* prompt = NULL;
 
     // getcwd() dynamically allocates memory for the path, On doit donc la free apres que on l'as utiliser.
-    char* current_working_directory = getcwd(NULL, 0); 
+    char* current_working_directory = getcwd(NULL, 0);
     if (current_working_directory == NULL){
         perror("can't find current working directory in prompt.c");
         goto error;
     }else {
+        // Shorten the prompt if the path is too long
+        size_t max_size_cwd = 25 - 3; // -3 for the "..." that will be added
+        if (strlen(current_working_directory) > max_size_cwd){
+            char* temp = malloc(max_size_cwd + 3 + 1); // +3 for the "..." and +1 for the \0
+            if (temp == NULL){
+                perror("error allocating space in prompt.c");
+                goto error;
+            }
+            strcpy(temp, "...");
+            strcat(temp, current_working_directory + (strlen(current_working_directory) - max_size_cwd));
+            free(current_working_directory);
+            current_working_directory = temp;
+        }
+
         int prompt_len = strlen(current_working_directory) + strlen(prompt_suffix) + 6; // the extra characteurs are the \0 , " ", and the recent execution status
         // allocation de la memoire pour le string du prompt
         prompt = malloc(prompt_len);
