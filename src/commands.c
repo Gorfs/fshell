@@ -14,7 +14,6 @@ char* internal_commands[] = {"exit", "pwd", NULL};
 
 int is_internal_command(char* command_name){
     // check if the command is an internal command (just checking one for now)
-
     char* command_to_check = internal_commands[0];
     int i = 0;
     while(command_to_check[i]){

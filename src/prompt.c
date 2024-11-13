@@ -17,7 +17,7 @@ int print_prompt(int file_descriptor){
         perror("can't find current working directory in prompt.c");
         goto error;
     }else {
-        int prompt_len = strlen(current_working_directory) + strlen(prompt_suffix) + 5; // the extra characteurs are the \0 , " ", and the recent execution status
+        int prompt_len = strlen(current_working_directory) + strlen(prompt_suffix) + 6; // the extra characteurs are the \0 , " ", and the recent execution status
         // allocation de la memoire pour le string du prompt
         prompt = malloc(prompt_len);
         // error handling
