@@ -6,12 +6,13 @@
 #include <string.h>
 #include <exit.h>
 #include <pwd.h>
+#include <ftype.h>
 #include <cd.h>
 // temporary to use printf for debugging
 #include <stdio.h>
 
 // list of internal commands
-char* internal_commands[] = {"exit", "pwd", "cd", NULL};
+char* internal_commands[] = {"exit", "pwd", "cd", "ftype", NULL};
 
 int is_internal_command(char* command_name){
     // check if the command is an internal command (just checking one for now)
@@ -38,6 +39,8 @@ void run_command(char** command){
             command_pwd(1);
         }else if (strcmp(command_name, "cd") == 0){
             command_cd(command);
+        }else if (strcmp(command_name, "ftype") == 0){
+            command_ftype(command);
         }else{
             // error handling
             perror("error running internal command");
