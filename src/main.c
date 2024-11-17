@@ -40,7 +40,8 @@ int main(){
     }
     // tokenise the input
     char** tokens = tokenise(input);
-    // print_tokens(tokens);
+    //printf("input : %s\n", input);
+    //print_tokens(tokens);
     run_command(tokens);
     if (strcmp(tokens[0], "exit") == 0){
       // break out of the loop
