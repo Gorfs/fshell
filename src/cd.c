@@ -10,12 +10,12 @@ int command_cd(char** command){
         if (chdir(home) == 0){
             return 0;
         }else{
-            return -1;
+            return 1;
         }
     }
     if (chdir(command[1]) == 0){
         return 0;
     }else{
-        return -1;
+        return 1;
     }
 }

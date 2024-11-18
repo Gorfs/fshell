@@ -7,8 +7,8 @@
 
 const char* prompt_suffix = "$ ";
 
-// prints the prompt the file_descriptor, returns -1 if an error occurs, 0 otherwise./
-int print_prompt(int file_descriptor){
+// prints the prompt the file_descriptor, returns 1 if an error occurs, 0 otherwise./
+int print_prompt(int file_descriptor, int last_val){
     char* prompt = NULL;
 
     // getcwd() dynamically allocates memory for the path, On doit donc la free apres que on l'as utiliser.
@@ -39,13 +39,9 @@ int print_prompt(int file_descriptor){
             perror("error allocating space in prompt.c");
             goto error;
         }
-        char* status = getenv("?");
-        if (status == NULL){
-            status = "0";
-        }
-         // Construct the prompt using snprintf
-        snprintf(prompt, prompt_len, "[%s]%s%s",status, current_working_directory, prompt_suffix);
-        if (write(file_descriptor, prompt, strlen(prompt)) == -1){
+        // Construct the prompt using snprintf
+        snprintf(prompt, prompt_len, "[%d]%s%s",last_val, current_working_directory, prompt_suffix);
+        if (write(file_descriptor, prompt, strlen(prompt)) == 1){
             perror("error writting prompt in prompt.c");
             goto error;
         }
@@ -60,6 +56,6 @@ int print_prompt(int file_descriptor){
     error:
         free(prompt);
         free(current_working_directory);
-        return -1;
+        return 1;
     
 }
