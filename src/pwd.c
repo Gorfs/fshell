@@ -7,7 +7,7 @@
 
 
 // prints the current working directory to the file_descriptor,
-// returns -1 if an error occurs, 0 otherwise
+// returns 1 if an error occurs, 0 otherwise
 int command_pwd(int file_descriptor){
     // Initialize the working directory string
     char* dir_string = NULL;
@@ -29,7 +29,7 @@ int command_pwd(int file_descriptor){
             goto error;
         }
         snprintf(dir_string, dir_len, "%s\n", current_working_directory);
-        if (write(file_descriptor, dir_string, strlen(dir_string)) == -1) // error handling
+        if (write(file_descriptor, dir_string, strlen(dir_string)) == 1) // error handling
         {
             perror("error writing prompt in main.c");
             goto error;
@@ -43,5 +43,5 @@ int command_pwd(int file_descriptor){
     error:
         free(dir_string);
         free(current_working_directory);
-        return -1;
+        return 1;
 }

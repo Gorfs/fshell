@@ -2,6 +2,6 @@
 #define COMMANDS_H
 
 extern int is_internal_command(char* command);
-extern void run_command(char** command);
+extern int run_command(char** command, int last_val);
 
 #endif

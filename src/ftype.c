@@ -24,7 +24,7 @@ int command_ftype(char** command){
         }
     }
     else{
-        return -1;
+        return 1;
     }
     return 0;
 }

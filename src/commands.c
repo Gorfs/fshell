@@ -27,23 +27,31 @@ int is_internal_command(char* command_name){
     return 0;
 }
 
-void run_command(char** command){
+int run_command(char** command, int last_val){
+    int status = last_val;
     char* command_name = command[0];
     // determine if the command is internal or external
     if (is_internal_command(command_name) == 1){
         // run the internal command
         // there must be a cleaner way to do this, this is just sad.
         if(strcmp(command_name, "exit") == 0){
-            command_exit(0);
+            command_exit(command, status);
         }else if (strcmp(command_name, "pwd") == 0){
-            command_pwd(1);
+            status = command_pwd(1);
         }else if (strcmp(command_name, "cd") == 0){
-            command_cd(command);
+            status = command_cd(command);
+            if (status == 1){
+                write(STDERR_FILENO, "cd: No such file or directory\n", 31);
+            }
         }else if (strcmp(command_name, "ftype") == 0){
-            command_ftype(command);
+            status = command_ftype(command);
+            if (status == 1){
+                write(STDERR_FILENO, "ftype: invalid arguments\n", 26);
+            }
         }else{
             // error handling
             perror("error running internal command");
+            status = 1;
         }
     }else{
         // make a new process
@@ -58,13 +66,11 @@ void run_command(char** command){
             // parent process
             int status;
             waitpid(pid, &status, 0);
-            // setting env status
-            char* status_str = malloc(4);
-            sprintf(status_str, "%d", status);
-            setenv("?", status_str, 1);
-            free(status_str);
+            status = WEXITSTATUS(status);
        }
     }
+
+    return status;
 }
 // not requried but could be useful later down the line
 // char* get_external_command_path(char* command){
