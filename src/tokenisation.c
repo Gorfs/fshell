@@ -23,52 +23,52 @@ int len_tokens(char* input){
 char** tokenise(char* input){
     // returns a list of each token from the input string
     char** result = NULL;
-    int token_count = 1;
-    
-    // premiere passage pars la liste pour trouver sa longeur
-    token_count = len_tokens(input);
-    
+    int token_count = len_tokens(input);
+
     // allocate the result array
-    result = malloc(((token_count + 1) * sizeof(char*)));
-    //error handling
+    result = malloc((token_count + 1) * sizeof(char*));
     if (result == NULL){
         perror("error allocating space in tokenisation.c");
-        goto error;
+        return NULL;
     }
 
-    for(int j = 0 ; j <= token_count; j++){
+    int j = 0;
+    while (*input) {
+        // skip leading delimiters
+        while (*input == DELIMITER) input++;
 
-        // on trouve la longeur du token
+        // find the length of the token
         int token_length = 0;
-        while(input[token_length] != DELIMITER && input[token_length] != '\n' && input[token_length] != '\0'){
+        while (input[token_length] != DELIMITER && input[token_length] != '\n' && input[token_length] != '\0') {
             token_length++;
         }
-        // allocate the memory for the token
-        result[j] = malloc(token_length * sizeof(char));
-        // error handling
+
+        if (token_length == 0)
+            break;  // no more tokens
+
+        // allocate memory for the token
+        result[j] = malloc((token_length + 1) * sizeof(char));
         if (result[j] == NULL){
             perror("error allocating space in tokenisation.c");
             goto error;
         }
-        // copy le token dans le resultat
+
+        // copy the token and add null terminator
         strncpy(result[j], input, token_length);
+        result[j][token_length] = '\0';
 
-        if (j != token_count - 1){
-            // on bouge le cursor devant pour le prochain token
-            input += token_length + 1; // the +1 pour eviter le delimiteur
-        }else{
-            // avoiding segmentation fault
-            break;
-        }
+        // move the input pointer to the start of the next token
+        input += token_length;
 
+        j++;
     }
-    //  on peut pas free() le result ici car on doit le retourner
-    // pas tres encapsulatoir lol;
-    result[token_count] = NULL;
+    result[j] = NULL;  // null terminate the array
     return result;
 
     error:
+        for (int i = 0; i < j; i++) {
+            free(result[i]);
+        }
         free(result);
         return NULL;
-
 }
