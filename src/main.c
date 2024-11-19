@@ -23,20 +23,22 @@ int main(){
   int last_val = 0; // value of the last command executed
 
   char* input = malloc(PROMPT_MAX_SIZE*sizeof(char)); // TODO: the max size should be changed later
+  if(input == NULL){
+    perror("error allocating space in main.c");
+    return 1;
+  }
   while (1){
     if (print_prompt(output, last_val) == 1){
     // error handling
       perror("error printing prompt in main.c");
-      return 1;
-    }
-    if(input == NULL){
-      perror("error allocating space in main.c");
+      free(input);
       return 1;
     }
     fgets(input, PROMPT_MAX_SIZE* sizeof(char), stdin);
     // tokenise the input
     char** tokens = tokenise(input);
     if (feof(stdin)){
+      free(input);
       return command_exit(tokens,last_val);
     }
     //printf("input : %s\n", input);
