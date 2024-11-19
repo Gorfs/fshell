@@ -3,6 +3,14 @@
 #include <stdio.h>
 #include <exit.h>
 
-int command_exit(int exit_code){
-    return exit_code;
+int command_exit(char** command, int last_val){
+    if(command[1] == NULL){
+        free(command);
+        exit(last_val);
+    }
+    else{
+        int exit_code = atoi(command[1]);
+        free(command);
+        exit(exit_code);
+    }
 }

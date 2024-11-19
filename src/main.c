@@ -24,37 +24,26 @@ int main(){
 
   char* input = malloc(PROMPT_MAX_SIZE*sizeof(char)); // TODO: the max size should be changed later
   while (1){
-    if ( print_prompt(output) == -1){
+    if (print_prompt(output, last_val) == 1){
     // error handling
       perror("error printing prompt in main.c");
-      return -1;
+      return 1;
     }
     if(input == NULL){
       perror("error allocating space in main.c");
-      return -1;
+      return 1;
     }
     fgets(input, PROMPT_MAX_SIZE* sizeof(char), stdin);
-
-    if (feof(stdin)){
-      return command_exit(last_val);
-    }
     // tokenise the input
-    char** tokens = tokenise(input, ' ');
-    print_tokens(tokens);
-    run_command(tokens);
-    if (strcmp(tokens[0], "exit") == 0){
-      // break out of the loop
-      if (tokens[1] != NULL) 
-      {
-	  last_val = atoi(tokens[1]);
-	  free(tokens);
-	  return last_val;
-      }
-      free(tokens);
-      return last_val;
-    }else{
-
+    char** tokens = tokenise(input);
+    if (feof(stdin)){
+      return command_exit(tokens,last_val);
     }
+    //printf("input : %s\n", input);
+    //print_tokens(tokens);
+    last_val = run_command(tokens, last_val);
+    free(tokens);
   }
+  return 0;
 }
 
