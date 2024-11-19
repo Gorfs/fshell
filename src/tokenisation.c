@@ -44,7 +44,7 @@ char** tokenise(char* input){
             if (input[token_length] == '"') // if we find a quote we toggle the text flag
                 text = !text;
 
-            if (input[token_length] == DELEMITER) // if we find a delimiter we check if we are in a text or not
+            if (input[token_length] == DELIMITER) // if we find a delimiter we check if we are in a text or not
             {
                 if (text) // if we are in a text we continue and remove the delimiter from the count
                     token_count--;
