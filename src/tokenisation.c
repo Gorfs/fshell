@@ -4,43 +4,35 @@
 #include <string.h> // gonna be needed for string standard library functions
 
 
-char* cmd_delimiters = {";|"};
+const char* cmd_delimiters[] = {";", "|", "{", "}", ">", ">>", "<", "<<", "|>>", "2>", "2>>", NULL};
 
-int is_cmd_delimiter(char c){
-    // returns 1 if the character is a command delimiter
-    for (size_t i = 0; i < strlen(cmd_delimiters); i++){
-        if (c == cmd_delimiters[i]){
+int is_delimiter(char* potential_delimiter){
+    for(size_t i = 0 ; cmd_delimiters[i] != NULL; i++){
+        if(strcmp(potential_delimiter, cmd_delimiters[i]) == 0){
             return 1;
         }
     }
-    return 0;
+    return -1;
 }
 
+
 int len_cmds(char* input){
-    // returns the amount of commands in an input
-    int cmd_count = 1;
-    for (size_t i = 0 ; i < strlen(input); i++){
-        if (is_cmd_delimiter(input[i])){
-            cmd_count++;
+    // returns the number of commands seperated by delimiters in the input
+    char* input_cpy = malloc(strlen(input) + 1);
+    strcpy(input_cpy, input);
+    char* cmd_token = strtok(input_cpy, " ");
+    int cmd_nbr = 1;
+    // determiner la longeur de la liste de commandes
+    for(int i = 0; cmd_token != NULL; i++){
+        if(is_delimiter(cmd_token)){
+            cmd_nbr++;
         }
+        cmd_token = strtok(NULL, " ");
     }
-    return cmd_count;
+    free(input_cpy);
+    return cmd_nbr;
 }
-char* delimiters_in_order(char* input){
-    // returns a string with each delimiter in order of it's appearance example : ";;|{}"
-    char* result = malloc(len_cmds(input) * sizeof(char));
-    if(result == NULL){
-        perror("error allocating space in tokenisation.c");
-        return NULL;
-    }
-    result[0] = '\0';
-    for(size_t i = 0; i < strlen(input); i++){
-        if (is_cmd_delimiter(input[i])){
-            result[i] = input[i];
-        }
-    }
-    return result;
-}
+
 
 int len_tokens(char* input){
     // retourn le nombre de tokens dans le string d'input
@@ -52,6 +44,21 @@ int len_tokens(char* input){
         }
     }
     return token_count;
+}
+
+int len_until_next_delimiter(char** tokens){
+    // returns the amount of tokens until the next delimiter
+    char** token = tokens;
+    int count = 0;
+    while(token != NULL){
+        if (is_delimiter(*token)){
+            return count;
+        }
+        count++;
+        token++;
+    }
+    return count;
+
 }
 
 
@@ -125,26 +132,41 @@ char** tokenise_cmd(char* input){
 
 char*** tokenise_input(char* input){
     // takes in char* input and returns a 3D array of tokens
+    // must have a null terminator at the end.
     if(strlen(input) == 0){ // base case , we can now suppose that len(input) > 0
         return NULL;
     }
-    char* input_cpy = malloc(strlen(input) + 1);
-    if (strcpy(input_cpy, input) == NULL){
-        perror("error copying input in tokenisation.c");
-        return NULL;
-    }
-    // array of tokenized commands
-    char** result = malloc((len_cmds(input) +1) * sizeof(char*));
-    char* cmd = strtok(input_cpy, cmd_delimiters);
-    printf("cmd : %s\n", cmd);
-    int i = 0;
+    char* input_cpy = malloc(strlen(input) + 1); strcpy(input_cpy, input);
+    char* save_ptr;
 
-    while(cmd != NULL){
-        result[i] = tokenise_cmd(cmd);
-        i++;
-        cmd = strtok(NULL, cmd_delimiters);
+    char* cmd_token = strtok_r(input_cpy, " ", save_ptr);
+
+    int cmd_nbr = len_cmds(input);    
+    int cmd_index = 0;
+    char*** result = malloc((cmd_nbr * 2) * sizeof(char**)); // does *2 to acount for the null terminator and the delimiter
+
+    result[0] = malloc(2 * sizeof(char*));
+    int j = 0;
+    while(cmd_token != NULL){
+        if(is_delimiter(cmd_token) == -1){
+            result[cmd_index][j] = strdup(cmd_token);
+            j++;
+        }else{
+            result[cmd_index][j] = NULL;
+            cmd_index++;
+            result[cmd_index] = malloc(sizeof(char*));
+            result[cmd_index][0] = strdup(cmd_token);
+            cmd_index++;
+            result[cmd_index] = malloc(2 * sizeof(char*));
+            j = 0;
+        }
+        cmd_token = strtok_r(NULL, " ", save_ptr);
     }
-    result[i] = NULL; // null terminator for the end of the commands
+    // TODO : maybe ad a null at the end of the final command, don't know if it is added already
+    cmd_index++;
+    
+    result[cmd_index] = NULL;
     free(input_cpy);
+    
     return result;
 }

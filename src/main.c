@@ -37,6 +37,11 @@ int main(){
   }
   while (1){
     prompt = getPrompt(last_val); 
+    if(prompt == NULL){
+      perror("error getting prompt in main.c");
+      free(input);
+      return 1;
+    }
     input = readline(prompt);
     // tokenise the input
     if (input == NULL){
@@ -56,7 +61,7 @@ int main(){
 
     //printf("input : %s\n", input);
     print_cmds(tokens);
-    last_val = run_command(tokens[0], last_val);
+    last_val = run_commands(tokens, last_val, input);
     free(tokens);
   }
   return 0;

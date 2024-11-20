@@ -72,33 +72,12 @@ int run_command(char** command, int last_val){
 
     return status;
 }
-// not requried but could be useful later down the line
-// char* get_external_command_path(char* command){
-//     char* path = getenv("PATH");
-//     if (path == NULL){
-//         perror("error getting the PATH variable");
-//         return NULL;
-//     }
-//     char path_copy = strdup(path);
-//     if (path_copy == NULL){
-//         perror("error copying the PATH variable");
-//         return NULL;
-//     }
-//     char* dir = strtok(path_copy, ":");
-//     while(dir != NULL){
-//         // check if the command exists in the directory
-//         dir = strtok(NULL, ":");
-//         char* fullPath = malloc(strlen(dir) + strlen(command) + 2);
-//         snprintf(fullPath, sizeof(fullPath), "%s/%s", dir, command);
-//         if(access(fullPath, F_OK) == 0){
-//             free(path_copy);
-//             return strdup(fullPath);
-//         }else{
-//             free(fullPath);
-//             dir = strtok(NULL, ":");
-//         }
-//     }
-//     free(path_copy);
-//     return NULL;
-// }
 
+int run_commands(char*** commands, int last_val, char* input){
+    int stdin_copy = dup(STDIN_FILENO);
+    int stderr_cpy = dup(STDERR_FILENO);
+    int stdout_cpy = dup(STDOUT_FILENO);
+    for (int i = 0; commands[i] != NULL; i++){
+        last_val = run_command(commands[i], last_val);
+    }
+}
