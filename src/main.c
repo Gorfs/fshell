@@ -17,6 +17,12 @@ void print_tokens(char** tokens){
   } 
   printf("\n");
 }
+void print_cmds(char*** tokenized_cmds){
+  for(int i = 0; tokenized_cmds[i] != NULL; i++){
+    printf("command %d : ", i);
+    print_tokens(tokenized_cmds[i]);
+  }
+}
 
 int main(){
   int output = STDERR_FILENO; // output where we write the prompt, 2 is the standard error output
@@ -36,14 +42,24 @@ int main(){
     }
     fgets(input, PROMPT_MAX_SIZE* sizeof(char), stdin);
     // tokenise the input
-    char** tokens = tokenise(input);
+    if (input == NULL){
+      perror("error reading input in main.c");
+      free(input);
+      return 1;
+    }else if(strlen(input) <= 1){ 
+      // command is null or empty, just ignore it
+      continue;
+    }
+    char*** tokens = tokenise_input(input);
+
     if (feof(stdin)){
       free(input);
-      return command_exit(tokens,last_val);
+      return command_exit(*tokens,last_val);
     }
+
     //printf("input : %s\n", input);
-    //print_tokens(tokens);
-    last_val = run_command(tokens, last_val);
+    print_cmds(tokens);
+    last_val = run_command(tokens[0], last_val);
     free(tokens);
   }
   return 0;
