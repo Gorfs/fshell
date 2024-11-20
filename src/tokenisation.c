@@ -148,6 +148,7 @@ char*** tokenise_input(char* input){
     result[0] = malloc(2 * sizeof(char*));
     int j = 0;
     while(cmd_token != NULL){
+        printf("cmd_at the first positions: %s\n",result[0][0] );
         if(is_delimiter(cmd_token) == -1){
             result[cmd_index][j] = strdup(cmd_token);
             j++;
@@ -162,10 +163,8 @@ char*** tokenise_input(char* input){
         }
         cmd_token = strtok_r(NULL, " ", save_ptr);
     }
+    result[cmd_index + 1] = NULL;
     // TODO : maybe ad a null at the end of the final command, don't know if it is added already
-    cmd_index++;
-    
-    result[cmd_index] = NULL;
     free(input_cpy);
     
     return result;
