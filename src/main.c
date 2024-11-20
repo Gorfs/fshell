@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <exit.h>
 #include <unistd.h>
+#include <readline/readline.h>
+#include <readline/history.h> 
 
 // TODO: DEBUGGING FUNCTION TO BE REMOVED LATER 
 // on peut garder la fonction si on enleve le printf et on utiliser notre fonction IO
@@ -25,8 +27,8 @@ void print_cmds(char*** tokenized_cmds){
 }
 
 int main(){
-  int output = STDERR_FILENO; // output where we write the prompt, 2 is the standard error output
   int last_val = 0; // value of the last command executed
+  char* prompt = NULL;
 
   char* input = malloc(PROMPT_MAX_SIZE*sizeof(char)); // TODO: the max size should be changed later
   if(input == NULL){
@@ -34,13 +36,8 @@ int main(){
     return 1;
   }
   while (1){
-    if (print_prompt(output, last_val) == 1){
-    // error handling
-      perror("error printing prompt in main.c");
-      free(input);
-      return 1;
-    }
-    fgets(input, PROMPT_MAX_SIZE* sizeof(char), stdin);
+    prompt = getPrompt(last_val); 
+    input = readline(prompt);
     // tokenise the input
     if (input == NULL){
       perror("error reading input in main.c");
