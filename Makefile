@@ -1,6 +1,7 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -g -Iinclude  # -Wall for warnings, -Werror to treat warnings as errors, -g for debugging, -I for include directory
+CFLAGS = -Wall -Wextra -g -Iinclude  # Compiler flags
+LDFLAGS = -lreadline  # Linker flags
 
 # Source files (add more as needed)
 SRCS = src/main.c  src/prompt.c src/tokenisation.c src/commands.c src/pwd.c src/exit.c src/cd.c src/ftype.c
@@ -14,7 +15,7 @@ all: $(TARGET)
 
 # Rule to build the executable
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(LDFLAGS) -o $@ $^
 
 # Rule to compile source files into object files
 build/%.o: src/%.c | build

@@ -1,7 +1,10 @@
 #ifndef TOKENISATION_H
 #define TOKENISATION_H
 
-extern char** tokenise(char* input); // returns a list of tokens from the input string followed by a NULL terminator
+#define MAX_COMMAND_SIZE 100
 extern int len_tokens(char* input);
+extern int len_cmds(char* input);
+extern char*** tokenise_cmds(char* input);
+extern void print_tokenised_cmds(char*** tokenised_cmds);
 
 #endif

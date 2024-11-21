@@ -1,8 +1,7 @@
-#include <stdlib.h> 
-#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-
+#include <stdio.h>
 #define PATH_MAX_LEN 4096
 
 char* last_dir = NULL;
