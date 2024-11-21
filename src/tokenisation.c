@@ -6,10 +6,11 @@
 
 
 char* cmd_delimiters[] = {";", "|", "{", "}", ">", ">>", "<", "<<","|>", "|>>", "2>", "2>>", NULL};
+// char* cmd_delimiters[] = { "|>>", "2>", "2>>",">>", "<<","|>" ,"<" ,";", "|", "{", "}", ">", NULL};
 int cmd_delimiters_count = 12;
 
 int is_delimiter(char* potential_delimiter){
-    for(size_t i = 0 ; cmd_delimiters[i] != NULL; i++){
+    for(int i = 0 ; i < cmd_delimiters_count; i++){
         if(strcmp(potential_delimiter, cmd_delimiters[i]) == 0){
             return 1;
         }
@@ -114,14 +115,19 @@ int earlist_delimiter(char* input){
 }
 int len_first_delimiter(char* input){
     int index = earlist_delimiter(input);
-    int len = 0;
-    char* delimiter = malloc(5 * sizeof(char)); // bigger than all possible deliters 
-    delimiter = strncpy(delimiter, input + index, 1);
+    int len = 1;
+    char* delimiter = malloc(5 * sizeof(char)); // bigger than all possible delimiters 
+    delimiter = strncpy(delimiter, input + index, 2);
+    if(delimiter == NULL){
+        return -1;
+    }
     while(is_delimiter(delimiter) == 1){
         len++;
         delimiter = strncpy(delimiter, input + index, len);
     }
-    return len - 1;
+    printf("delimiter is %s\n", delimiter);
+    free(delimiter);
+    return len;
 }
 
 char*** tokenise_cmds(char* input){

@@ -4,8 +4,10 @@
 #include <exit.h>
 
 int command_exit(char** command, int last_val){
-    if(command[1] == NULL){
-        free(command);
+    if(command == NULL || command[1] == NULL){
+        if (command != NULL){
+            free(command);
+        }
         exit(last_val);
     }
     else{
