@@ -5,8 +5,8 @@
 #include <string.h> // gonna be needed for string standard library functions
 
 
-const char* cmd_delimiters[] = {";", "|", "{", "}", ">", ">>", "<", "<<","|>", "|>>", "2>", "2>>", NULL};
-const int cmd_delimiters_count = 12;
+char* cmd_delimiters[] = {";", "|", "{", "}", ">", ">>", "<", "<<","|>", "|>>", "2>", "2>>", NULL};
+int cmd_delimiters_count = 12;
 
 int is_delimiter(char* potential_delimiter){
     for(size_t i = 0 ; cmd_delimiters[i] != NULL; i++){
@@ -136,7 +136,7 @@ char*** tokenise_cmds(char* input){
     }
     int cmd_index = 0;
 
-    while(input == ' '){
+    while(*input == ' '){
         input++; // skip leading spaces
     }
 

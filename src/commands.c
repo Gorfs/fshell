@@ -73,11 +73,12 @@ int run_command(char** command, int last_val){
     return status;
 }
 
-int run_commands(char*** commands, int last_val, char* input){
-    int stdin_copy = dup(STDIN_FILENO);
-    int stderr_cpy = dup(STDERR_FILENO);
-    int stdout_cpy = dup(STDOUT_FILENO);
+int run_commands(char*** commands, int last_val){
+    // int stdin_copy = dup(STDIN_FILENO);
+    // int stderr_cpy = dup(STDERR_FILENO);
+    // int stdout_cpy = dup(STDOUT_FILENO);
     for (int i = 0; commands[i] != NULL; i++){
         last_val = run_command(commands[i], last_val);
     }
+    return last_val;
 }

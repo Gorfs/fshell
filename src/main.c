@@ -37,7 +37,7 @@ int main(){
       // command is null or empty, just ignore it
       continue;
     }
-    char** tokens = tokenise_cmds(input);
+    char*** tokens = tokenise_cmds(input);
 
     if (feof(stdin)){
       free(input);
@@ -45,7 +45,7 @@ int main(){
     }
 
     print_tokenised_cmds(tokens); // TODO: remove debug for tokens
-    last_val = run_commands(tokens, last_val, input);
+    last_val = run_commands(tokens, last_val);
     free(tokens);
   }
   return 0;
