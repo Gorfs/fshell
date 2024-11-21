@@ -25,6 +25,27 @@ void print_cmds(char*** tokenized_cmds){
     print_tokens(tokenized_cmds[i]);
   }
 }
+void print_tokenised_cmds(char*** tokenised_cmds) {
+    if (tokenised_cmds == NULL) {
+        printf("No commands to print.\n");
+        return;
+    }
+
+    for (int i = 0; tokenised_cmds[i] != NULL; i++) {
+        printf("[");
+        for (int j = 0; tokenised_cmds[i][j] != NULL; j++) {
+            printf("\"%s\"", tokenised_cmds[i][j]);
+            if (tokenised_cmds[i][j + 1] != NULL) {
+                printf(", ");
+            }
+        }
+        printf("]");
+        if (tokenised_cmds[i + 1] != NULL) {
+            printf(", ");
+        }
+    }
+    printf("\n");
+}
 
 int main(){
   int last_val = 0; // value of the last command executed
@@ -52,7 +73,7 @@ int main(){
       // command is null or empty, just ignore it
       continue;
     }
-    char*** tokens = tokenise_input(input);
+    char** tokens = tokenise_cmds(input);
 
     if (feof(stdin)){
       free(input);
@@ -60,7 +81,7 @@ int main(){
     }
 
     //printf("input : %s\n", input);
-    print_cmds(tokens);
+    print_tokenised_cmds(tokens);
     last_val = run_commands(tokens, last_val, input);
     free(tokens);
   }

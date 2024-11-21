@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <tokenisation.h>
+#include <regex.h> // we are sooo back
 #include <string.h> // gonna be needed for string standard library functions
 
 
-const char* cmd_delimiters[] = {";", "|", "{", "}", ">", ">>", "<", "<<", "|>>", "2>", "2>>", NULL};
+const char* cmd_delimiters[] = {";", "|", "{", "}", ">", ">>", "<", "<<","|>", "|>>", "2>", "2>>", NULL};
+const int cmd_delimiters_count = 12;
 
 int is_delimiter(char* potential_delimiter){
     for(size_t i = 0 ; cmd_delimiters[i] != NULL; i++){
@@ -13,24 +15,6 @@ int is_delimiter(char* potential_delimiter){
         }
     }
     return -1;
-}
-
-
-int len_cmds(char* input){
-    // returns the number of commands seperated by delimiters in the input
-    char* input_cpy = malloc(strlen(input) + 1);
-    strcpy(input_cpy, input);
-    char* cmd_token = strtok(input_cpy, " ");
-    int cmd_nbr = 1;
-    // determiner la longeur de la liste de commandes
-    for(int i = 0; cmd_token != NULL; i++){
-        if(is_delimiter(cmd_token)){
-            cmd_nbr++;
-        }
-        cmd_token = strtok(NULL, " ");
-    }
-    free(input_cpy);
-    return cmd_nbr;
 }
 
 
@@ -46,20 +30,6 @@ int len_tokens(char* input){
     return token_count;
 }
 
-int len_until_next_delimiter(char** tokens){
-    // returns the amount of tokens until the next delimiter
-    char** token = tokens;
-    int count = 0;
-    while(token != NULL){
-        if (is_delimiter(*token)){
-            return count;
-        }
-        count++;
-        token++;
-    }
-    return count;
-
-}
 
 
 // retourn un tableau de string et NULL si il y a une erreur
@@ -130,153 +100,124 @@ char** tokenise_cmd(char* input){
         return NULL;
 }
 
-
-char ***tokenise_input(char *input) {
-    // takes in char* input and returns a 3D array of tokens
-    // must have a null terminator at the end.
-    if (strlen(input) == 0) { // base case , we can now suppose that len(input) > 0
-        return NULL;
+int strcount(const char* str, const char* sub) {
+    int count = 0;
+    const char* tmp = str;
+    while ((tmp = strstr(tmp, sub)) != NULL) {
+        count++;
+        tmp += strlen(sub);
     }
+    return count;
+}
 
-    char *input_cpy = malloc(strlen(input) + 1);
-    if (!input_cpy) {
-        fprintf(stderr, "Memory allocation failed for input copy.\n");
-        return NULL;
-    }
-    strcpy(input_cpy, input);
-
-    char *save_ptr;
-    char *cmd_token = strtok_r(input_cpy, " ", &save_ptr);
-
-    int cmd_nbr = len_cmds(input);
-    int cmd_index = 0;
-
-    // Initialize result array with initial capacity
-    int result_capacity = cmd_nbr * 2; // Initial capacity
-    char ***result = malloc(result_capacity * sizeof(char **));
-    if (!result) {
-        fprintf(stderr, "Memory allocation failed for result array.\n");
-        free(input_cpy);
-        return NULL;
-    }
-
-    // Initialize an array to keep track of token capacities for each command
-    int *token_capacities = malloc(result_capacity * sizeof(int));
-    if (!token_capacities) {
-        fprintf(stderr, "Memory allocation failed for token capacities.\n");
-        free(input_cpy);
-        free(result);
-        return NULL;
-    }
-
-    // Initialize the first command's token array
-    int token_capacity = 10; // Initial token capacity for each command
-    token_capacities[cmd_index] = token_capacity;
-    result[cmd_index] = malloc(token_capacity * sizeof(char *));
-    if (!result[cmd_index]) {
-        fprintf(stderr, "Memory allocation failed for command tokens.\n");
-        free(input_cpy);
-        free(result);
-        free(token_capacities);
-        return NULL;
-    }
-
-    int j = 0;
-
-    while (cmd_token != NULL) {
-        if (is_delimiter(cmd_token) == -1) {
-            printf("setting j : %d to %s\n", j, cmd_token);
-
-            // Check if we need to expand the tokens array
-            if (j >= token_capacities[cmd_index]) {
-                token_capacity *= 2; // Double the token capacity
-                token_capacities[cmd_index] = token_capacity;
-                char **temp = realloc(result[cmd_index], token_capacity * sizeof(char *));
-                if (!temp) {
-                    fprintf(stderr, "Memory allocation failed when expanding tokens array.\n");
-                    // Free previously allocated memory before returning
-                    free(input_cpy);
-                    // TODO: Free all allocated memory for result and token_capacities
-                    return NULL;
-                }
-                result[cmd_index] = temp;
-            }
-            result[cmd_index][j] = strdup(cmd_token);
-            if (!result[cmd_index][j]) {
-                fprintf(stderr, "Memory allocation failed for token strdup.\n");
-                // Free previously allocated memory before returning
-                free(input_cpy);
-                // TODO: Free all allocated memory for result and token_capacities
-                return NULL;
-            }
-            j++;
-        } else {
-            printf("setting j : %d to null\n", j);
-            // Null-terminate the current command's token array
-            result[cmd_index][j] = NULL;
-            j = 0;
-            cmd_index++;
-
-            // Check if we need to expand the result array
-            if (cmd_index >= result_capacity) {
-                result_capacity *= 2; // Double the result capacity
-                token_capacities = realloc(token_capacities, result_capacity * sizeof(int));
-                if (!token_capacities) {
-                    fprintf(stderr, "Memory allocation failed when expanding token capacities.\n");
-                    // Free previously allocated memory before returning
-                    free(input_cpy);
-                    // TODO: Free all allocated memory for result
-                    return NULL;
-                }
-                char ***temp_result = realloc(result, result_capacity * sizeof(char **));
-                if (!temp_result) {
-                    fprintf(stderr, "Memory allocation failed when expanding result array.\n");
-                    free(input_cpy);
-                    // TODO: Free all allocated memory for result and token_capacities
-                    return NULL;
-                }
-                result = temp_result;
-            }
-
-            // Allocate memory for the delimiter token array (single element)
-            token_capacities[cmd_index] = 1;
-            result[cmd_index] = malloc(token_capacities[cmd_index] * sizeof(char *));
-            if (!result[cmd_index]) {
-                fprintf(stderr, "Memory allocation failed for delimiter token array.\n");
-                free(input_cpy);
-                // TODO: Free all allocated memory for result and token_capacities
-                return NULL;
-            }
-            result[cmd_index][0] = strdup(cmd_token);
-            if (!result[cmd_index][0]) {
-                fprintf(stderr, "Memory allocation failed for delimiter token strdup.\n");
-                free(input_cpy);
-                // TODO: Free all allocated memory for result and token_capacities
-                return NULL;
-            }
-            cmd_index++;
-
-            // Allocate memory for the next command's token array
-            token_capacities[cmd_index] = 10; // Reset token capacity
-            result[cmd_index] = malloc(token_capacities[cmd_index] * sizeof(char *));
-            if (!result[cmd_index]) {
-                fprintf(stderr, "Memory allocation failed for next command's tokens.\n");
-                free(input_cpy);
-                // TODO: Free all allocated memory for result and token_capacities
-                return NULL;
+int earlist_delimiter(char* input){
+    // returns the earlier index of a delimiter in the input string
+    int min_index = -1;
+    for(int i = 0; i < cmd_delimiters_count; i++){
+        char* delimiter = cmd_delimiters[i];
+        char* found = strstr(input, delimiter);
+        if (found != NULL){
+            if (min_index == -1 || found < input + min_index){
+                min_index = found - input;
             }
         }
-        // Correct usage of strtok_r
-        cmd_token = strtok_r(NULL, " ", &save_ptr);
+    }
+    return min_index;
+}
+int len_first_delimiter(char* input){
+    int index = earlist_delimiter(input);
+    int len = 0;
+    char* delimiter = malloc(5 * sizeof(char)); // bigger than all possible deliters 
+    delimiter = strncpy(delimiter, input + index, 1);
+    while(is_delimiter(delimiter) == 1){
+        len++;
+        delimiter = strncpy(delimiter, input + index, len);
+    }
+    return len - 1;
+}
+
+char*** tokenise_cmds(char* input){
+    if (input == NULL || strlen(input) == 0){
+        return NULL;
+    }
+    char*** result = malloc(2 * sizeof(char**)); // minimum space required for the result + it's null terminator
+    int result_size = 1;
+    if(result == NULL){
+        perror("error allocating space in tokenisation.c");
+        return NULL;
+    }
+    int cmd_index = 0;
+
+    while(input == ' '){
+        input++; // skip leading spaces
     }
 
-    // Null-terminate the final command's token array
-    result[cmd_index][j] = NULL;
-    // Null-terminate the result array
-    result[cmd_index + 1] = NULL;
-    // Free the input copy
-    free(input_cpy);
-    // Free the token capacities array (no longer needed)
-    free(token_capacities);
+    int delimiter_length = 0;
+    int p_pointer = 0;
+    int c_pointer = 0;
+    while(c_pointer != -1){
+
+        while(input[0] == ' '){
+            input++; // skip leading spaces
+        }
+        // increase length of result by 1
+        result = realloc(result, (result_size + 1) * sizeof(char**));
+        result_size++;
+
+        c_pointer = earlist_delimiter(input);
+        if(c_pointer == -1){
+            break;
+        }
+        char* string_to_tokenise = malloc((c_pointer + 1) * sizeof(char));
+        if(string_to_tokenise == NULL){
+            perror("error allocating space in tokenisation.c");
+            goto error;
+        }
+        if(c_pointer == 0){ // we landed on the delimiter
+            delimiter_length = len_first_delimiter(input);
+            string_to_tokenise = malloc((delimiter_length + 1) * sizeof(char));
+            strncpy(string_to_tokenise, input, delimiter_length);
+        }else{
+            strncpy(string_to_tokenise, input, c_pointer - p_pointer);
+        }
+        result[cmd_index] = malloc(sizeof(char**)); // minimum space required for the result of tokenise_cmd
+        if(result[cmd_index] == NULL){
+            perror("error allocating space in tokenisation.c");
+            goto error;
+        }
+        result[cmd_index] = tokenise_cmd(string_to_tokenise);
+        if(result[cmd_index] == NULL){
+            perror("error tokenising command in tokenisation.c");
+            goto error;
+        }
+        cmd_index++;
+        input += c_pointer;
+        if(c_pointer == 0){
+            printf("delmiter length is %d\n", delimiter_length);
+            input += delimiter_length;
+            delimiter_length = 0;
+        }
+    }
+    // parse final token
+    result[cmd_index] = malloc(sizeof(char**)); // minimum space required for the result of tokenise_cmd
+    if(result[cmd_index] == NULL){
+        perror("error allocating space in tokenisation.c");
+        goto error;
+    }
+    result[cmd_index] = tokenise_cmd(input);
+    result[cmd_index + 1] = NULL; // null terminate the array
+
     return result;
+
+    error:
+        for (int i = 0; i < cmd_index; i++) {
+            for (int j = 0; result[i][j] != NULL; j++) {
+                free(result[i][j]);
+            }
+            free(result[i]);
+        }
+        free(result);
+        return NULL;
 }
+
+
