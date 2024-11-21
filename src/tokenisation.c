@@ -30,8 +30,6 @@ int len_tokens(char* input){
     return token_count;
 }
 
-
-
 // retourn un tableau de string et NULL si il y a une erreur
 // le tableau de TOKEN contient un null terminator NULL a la fin
 char** tokenise_cmd(char* input){
@@ -98,16 +96,6 @@ char** tokenise_cmd(char* input){
         }
         free(result);
         return NULL;
-}
-
-int strcount(const char* str, const char* sub) {
-    int count = 0;
-    const char* tmp = str;
-    while ((tmp = strstr(tmp, sub)) != NULL) {
-        count++;
-        tmp += strlen(sub);
-    }
-    return count;
 }
 
 int earlist_delimiter(char* input){
