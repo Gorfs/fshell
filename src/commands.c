@@ -40,14 +40,8 @@ int run_command(char** command, int last_val){
             status = command_pwd(1);
         }else if (strcmp(command_name, "cd") == 0){
             status = command_cd(command);
-            if (status == 1){
-                write(STDERR_FILENO, "cd: No such file or directory\n", 31);
-            }
         }else if (strcmp(command_name, "ftype") == 0){
             status = command_ftype(command);
-            if (status == 1){
-                write(STDERR_FILENO, "ftype: invalid arguments\n", 26);
-            }
         }else{
             // error handling
             perror("error running internal command");

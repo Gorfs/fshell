@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <exit.h>
 #include <unistd.h>
+#include <cd.h>
 
 // TODO: DEBUGGING FUNCTION TO BE REMOVED LATER 
 // on peut garder la fonction si on enleve le printf et on utiliser notre fonction IO
@@ -21,6 +22,12 @@ void print_tokens(char** tokens){
 int main(){
   int output = STDERR_FILENO; // output where we write the prompt, 2 is the standard error output
   int last_val = 0; // value of the last command executed
+
+    // Register the cleanup function
+    if (atexit(cleanup) != 0) {
+        perror("atexit failed");
+        return 1;
+    }
 
   char* input = malloc(PROMPT_MAX_SIZE*sizeof(char)); // TODO: the max size should be changed later
   while (1){
@@ -37,7 +44,7 @@ int main(){
     // tokenise the input
     char** tokens = tokenise(input);
     if (feof(stdin)){
-      return command_exit(tokens,last_val);
+      return command_exit(NULL,last_val);
     }
     //printf("input : %s\n", input);
     //print_tokens(tokens);
