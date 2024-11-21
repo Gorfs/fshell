@@ -208,4 +208,24 @@ char*** tokenise_cmds(char* input){
         return NULL;
 }
 
+void print_tokenised_cmds(char*** tokenised_cmds) {
+    if (tokenised_cmds == NULL) {
+        printf("No commands to print.\n");
+        return;
+    }
 
+    for (int i = 0; tokenised_cmds[i] != NULL; i++) {
+        printf("[");
+        for (int j = 0; tokenised_cmds[i][j] != NULL; j++) {
+            printf("\"%s\"", tokenised_cmds[i][j]);
+            if (tokenised_cmds[i][j + 1] != NULL) {
+                printf(", ");
+            }
+        }
+        printf("]");
+        if (tokenised_cmds[i + 1] != NULL) {
+            printf(", ");
+        }
+    }
+    printf("\n");
+}

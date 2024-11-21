@@ -10,42 +10,6 @@
 #include <readline/readline.h>
 #include <readline/history.h> 
 
-// TODO: DEBUGGING FUNCTION TO BE REMOVED LATER 
-// on peut garder la fonction si on enleve le printf et on utiliser notre fonction IO
-void print_tokens(char** tokens){
-  // on suppose que tokens est une liste valid de strings
-  for(int i = 0 ; tokens[i] != NULL; i++){
-    printf("token %d : \"%s\"    ",i, tokens[i]);
-  } 
-  printf("\n");
-}
-void print_cmds(char*** tokenized_cmds){
-  for(int i = 0; tokenized_cmds[i] != NULL; i++){
-    printf("command %d : ", i);
-    print_tokens(tokenized_cmds[i]);
-  }
-}
-void print_tokenised_cmds(char*** tokenised_cmds) {
-    if (tokenised_cmds == NULL) {
-        printf("No commands to print.\n");
-        return;
-    }
-
-    for (int i = 0; tokenised_cmds[i] != NULL; i++) {
-        printf("[");
-        for (int j = 0; tokenised_cmds[i][j] != NULL; j++) {
-            printf("\"%s\"", tokenised_cmds[i][j]);
-            if (tokenised_cmds[i][j + 1] != NULL) {
-                printf(", ");
-            }
-        }
-        printf("]");
-        if (tokenised_cmds[i + 1] != NULL) {
-            printf(", ");
-        }
-    }
-    printf("\n");
-}
 
 int main(){
   int last_val = 0; // value of the last command executed
@@ -80,8 +44,7 @@ int main(){
       return command_exit(*tokens,last_val);
     }
 
-    //printf("input : %s\n", input);
-    print_tokenised_cmds(tokens);
+    print_tokenised_cmds(tokens); // TODO: remove debug for tokens
     last_val = run_commands(tokens, last_val, input);
     free(tokens);
   }
