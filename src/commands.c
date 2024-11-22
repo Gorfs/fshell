@@ -36,7 +36,7 @@ int run_command(char*** commands, int i, int last_val){
         // run the internal command
         // there must be a cleaner way to do this, this is just sad.
         if(strcmp(command_name, "exit") == 0){
-            command_exit(commands, status);
+            command_exit(commands, i, status);
         }else if (strcmp(command_name, "pwd") == 0){
             status = command_pwd(1);
         }else if (strcmp(command_name, "cd") == 0){

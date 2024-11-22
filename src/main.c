@@ -36,7 +36,7 @@ int main(){
     char* input = readline(prompt);
     if (input == NULL){
       free(prompt);
-      return command_exit(NULL,last_val);
+      return command_exit(NULL,0,last_val);
     }
     add_history(input);
     // tokenise the input

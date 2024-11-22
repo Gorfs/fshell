@@ -3,6 +3,6 @@
 
 extern void free_tokens(char*** tokens);
 
-extern int command_exit(char*** command, int last_val);
+extern int command_exit(char*** commands, int i, int last_val);
 
 #endif // EXIT_H
