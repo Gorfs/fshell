@@ -27,7 +27,8 @@ int is_internal_command(char* command_name){
     return 0;
 }
 
-int run_command(char** command, int last_val){
+int run_command(char*** commands, int i, int last_val){
+    char** command = commands[i];
     int status = last_val;
     char* command_name = command[0];
     // determine if the command is internal or external
@@ -35,7 +36,7 @@ int run_command(char** command, int last_val){
         // run the internal command
         // there must be a cleaner way to do this, this is just sad.
         if(strcmp(command_name, "exit") == 0){
-            command_exit(command, status);
+            command_exit(commands, status);
         }else if (strcmp(command_name, "pwd") == 0){
             status = command_pwd(1);
         }else if (strcmp(command_name, "cd") == 0){
@@ -72,7 +73,7 @@ int run_commands(char*** commands, int last_val){
     // int stderr_cpy = dup(STDERR_FILENO);
     // int stdout_cpy = dup(STDOUT_FILENO);
     for (int i = 0; commands[i] != NULL; i++){
-        last_val = run_command(commands[i], last_val);
+        last_val = run_command(commands, i, last_val);
     }
     return last_val;
 }
