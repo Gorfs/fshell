@@ -132,7 +132,6 @@ int len_first_delimiter(char* input){
 */
 
 int len_first_delimiter(char* input) {
-    printf("input is : %s\n", input);
     int index = earlist_delimiter(input);
     int len = 0;
     char delimiter[10]; // Ensure this is large enough for your delimiters
@@ -151,7 +150,6 @@ int len_first_delimiter(char* input) {
     
     // Adjust to remove the extra increment after the loop
     // len--; // Uncomment if delimiter[len] is incorrectly set to a non-delimiter
-    printf("delimiter is %s\n", delimiter);
     return len;
 }
 
@@ -184,7 +182,6 @@ char*** tokenise_cmds(char* input){
         }
 
         c_pointer = earlist_delimiter(input);
-        printf("c_pointer is %d\n", c_pointer);
         if(c_pointer == -1){
             //Plus de délimitations, on continue sur la suite de l'input
             result[cmd_index] = tokenise_cmd(input);
@@ -199,7 +196,6 @@ char*** tokenise_cmds(char* input){
         if(c_pointer == 0){
             //On a trouvé un délimiteur au début de l'input
             delimiter_length = len_first_delimiter(input);
-            printf( "delimiter_length is %d\n", delimiter_length);
             char* delimiter = malloc((delimiter_length + 1) * sizeof(char));
             if (delimiter == NULL){
                 perror("erreur d'allocation de mémoire");
