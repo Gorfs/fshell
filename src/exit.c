@@ -19,7 +19,7 @@ void free_tokens(char*** tokens){
 int command_exit(char*** commands, int i, int last_val){
     if(commands == NULL || *commands == NULL || (*commands)[1] == NULL){
         if (commands != NULL){
-            free_tokens(commands);
+          free_tokens(commands);
         }
         exit(last_val);
     }

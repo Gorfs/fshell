@@ -36,19 +36,24 @@ int main(){
     char* input = readline(prompt);
     if (input == NULL){
       free(prompt);
-      return command_exit(NULL,0,last_val);
+      command_exit(NULL,0,last_val);
     }
     add_history(input);
     // tokenise the input
     char*** tokens = tokenise_cmds(input);
-
-    //print_tokenised_cmds(tokens); // TODO: remove debug for tokens
+    if (input != NULL){
+      free(input);
+    }
+    if (prompt != NULL){
+      free(prompt);
+    }
+    print_tokenised_cmds(tokens); // TODO: remove debug for tokens
     if (tokens != NULL && *tokens != NULL && **tokens != NULL){
       last_val = run_commands(tokens, last_val);
     }
-    free(input);
-    free(prompt);
-    free_tokens(tokens);
+    if (tokens != NULL){
+      free_tokens(tokens);
+    }
   }
   return 0;
 }

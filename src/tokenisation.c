@@ -113,20 +113,45 @@ int earlist_delimiter(char* input){
     }
     return min_index;
 }
+/*
 int len_first_delimiter(char* input){
+    printf("input is : %s\n", input);
     int index = earlist_delimiter(input);
-    int len = 1;
-    char* delimiter = malloc(5 * sizeof(char)); // bigger than all possible delimiters 
-    delimiter = strncpy(delimiter, input + index, 2);
-    if(delimiter == NULL){
-        return -1;
-    }
+    int len = 0;
+    char delimiter[5]; // bigger than all possible delimiters 
+    strncpy(delimiter, input + index, len+1);
+    delimiter[len] = '\0';
     while(is_delimiter(delimiter) == 1){
         len++;
-        delimiter = strncpy(delimiter, input + index, len);
+        strncpy(delimiter, input + index, len);
+        delimiter[len] = '\0';
     }
     printf("delimiter is %s\n", delimiter);
-    free(delimiter);
+    return len;
+}
+*/
+
+int len_first_delimiter(char* input) {
+    printf("input is : %s\n", input);
+    int index = earlist_delimiter(input);
+    int len = 0;
+    char delimiter[10]; // Ensure this is large enough for your delimiters
+    
+    // Start building the delimiter string
+    while (input[index + len]) {
+        delimiter[len] = input[index + len];
+        delimiter[len + 1] = '\0';
+        if (is_delimiter(delimiter) == 1) {
+            len++;
+        } else {
+            delimiter[len] = '\0';
+            break;
+        }
+    }
+    
+    // Adjust to remove the extra increment after the loop
+    // len--; // Uncomment if delimiter[len] is incorrectly set to a non-delimiter
+    printf("delimiter is %s\n", delimiter);
     return len;
 }
 
@@ -135,7 +160,7 @@ char*** tokenise_cmds(char* input){
         return NULL;
     }
     char*** result = malloc(2 * sizeof(char**)); // minimum space required for the result + it's null terminator
-    int result_size = 1;
+    //int result_size = 2;
     if(result == NULL){
         perror("error allocating space in tokenisation.c");
         return NULL;
@@ -147,8 +172,75 @@ char*** tokenise_cmds(char* input){
     }
 
     int delimiter_length = 0;
-    int p_pointer = 0;
+    //int p_pointer = 0;
     int c_pointer = 0;
+
+    while(*input){
+
+        result = realloc(result, (cmd_index + 2) * sizeof(char**));
+        if (result == NULL) {
+            perror("erreur de réallocation de mémoire");
+            goto error;
+        }
+
+        c_pointer = earlist_delimiter(input);
+        printf("c_pointer is %d\n", c_pointer);
+        if(c_pointer == -1){
+            //Plus de délimitations, on continue sur la suite de l'input
+            result[cmd_index] = tokenise_cmd(input);
+            if(result[cmd_index] == NULL){
+                perror("erreur de tokenisation de la commande");
+                goto error;
+            }
+            cmd_index++;
+            break;
+        }
+
+        if(c_pointer == 0){
+            //On a trouvé un délimiteur au début de l'input
+            delimiter_length = len_first_delimiter(input);
+            printf( "delimiter_length is %d\n", delimiter_length);
+            char* delimiter = malloc((delimiter_length + 1) * sizeof(char));
+            if (delimiter == NULL){
+                perror("erreur d'allocation de mémoire");
+                goto error;
+            }
+            strncpy(delimiter, input, delimiter_length);
+            delimiter[delimiter_length] = '\0';
+            
+            result[cmd_index] = malloc(2 * sizeof(char*));
+            if(result[cmd_index] == NULL){
+                perror("erreur d'allocation de mémoire");
+                free(delimiter);
+                goto error;
+            }
+            result[cmd_index][0] = delimiter;
+            result[cmd_index][1] = NULL;
+            cmd_index++;
+            input += delimiter_length;
+        }
+        else{
+            //On a trouvé un token avant le délimiteur;
+            char* string_to_tokenise = malloc((c_pointer + 1) * sizeof(char));
+            if(string_to_tokenise == NULL){
+                perror("erreur d'allocation de mémoire");
+                goto error;
+            }
+            strncpy(string_to_tokenise, input, c_pointer);
+            string_to_tokenise[c_pointer] = '\0';
+
+            result[cmd_index] = tokenise_cmd(string_to_tokenise);
+            if(result[cmd_index] == NULL){
+                perror("erreur d'allocation de mémoire");
+                free(string_to_tokenise);
+                goto error;
+            }
+            cmd_index++;
+            free(string_to_tokenise);
+            input += c_pointer;
+        }
+    }
+    /*
     while(c_pointer != -1){
 
         while(input[0] == ' '){
@@ -199,7 +291,8 @@ char*** tokenise_cmds(char* input){
         goto error;
     }
     result[cmd_index] = tokenise_cmd(input);
-    result[cmd_index + 1] = NULL; // null terminate the array
+    */
+    result[cmd_index] = NULL; // null terminate the array
 
     return result;
 
