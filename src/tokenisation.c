@@ -174,7 +174,9 @@ char*** tokenise_cmds(char* input){
     int c_pointer = 0;
 
     while(*input){
-
+        while(input[0] == ' '){
+            input++; // skip leading spaces
+        }
         result = realloc(result, (cmd_index + 2) * sizeof(char**));
         if (result == NULL) {
             perror("erreur de réallocation de mémoire");
