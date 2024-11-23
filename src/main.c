@@ -11,7 +11,6 @@
 #include <readline/history.h> 
 #include <cd.h>
 
-
 int main(){
   int last_val = 0; // value of the last command executed
   char* prompt = NULL;
@@ -22,32 +21,39 @@ int main(){
         return 1;
     }
 
-  char* input = malloc(PROMPT_MAX_SIZE*sizeof(char)); // TODO: the max size should be changed later
-  if(input == NULL){
-    perror("error allocating space in main.c");
-    return 1;
-  }
+  //char* input = malloc(PROMPT_MAX_SIZE*sizeof(char)); // TODO: the max size should be changed later
+  //if(input == NULL){
+  //  perror("error allocating space in main.c");
+  //  return 1;
+  //}
   while (1){
     prompt = getPrompt(last_val); 
     if(prompt == NULL){
       perror("error getting prompt in main.c");
-      free(input);
       return 1;
     }
     rl_outstream = stderr;
-    input = readline(prompt);
+    char* input = readline(prompt);
+    if (input == NULL){
+      free(prompt);
+      command_exit(NULL,0,last_val);
+    }
     add_history(input);
     // tokenise the input
     char*** tokens = tokenise_cmds(input);
-
-    if (feof(stdin)){
+    if (input != NULL){
       free(input);
-      return command_exit(*tokens,last_val);
     }
-
+    if (prompt != NULL){
+      free(prompt);
+    }
     //print_tokenised_cmds(tokens); // TODO: remove debug for tokens
-    last_val = run_commands(tokens, last_val);
-    free(tokens);
+    if (tokens != NULL && *tokens != NULL && **tokens != NULL){
+      last_val = run_commands(tokens, last_val);
+    }
+    if (tokens != NULL){
+      free_tokens(tokens);
+    }
   }
   return 0;
 }
