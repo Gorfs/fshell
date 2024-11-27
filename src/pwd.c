@@ -2,17 +2,133 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <dirent.h>
+#include <sys/types.h>
 // personal files includes
 #include <pwd.h>
 
+#define PATH_MAX 4096
+char* my_getcwd() {
+    char* buffer = malloc(PATH_MAX);
+    if (buffer == NULL) {
+        perror("malloc");
+        return NULL;
+    }
+
+    char* path = buffer + PATH_MAX - 1;
+    *path = '\0';
+
+    int fd = open(".", O_RDONLY);
+    if (fd == -1) {
+        perror("open");
+        free(buffer);
+        return NULL;
+    }
+
+    struct stat current_stat, parent_stat;
+    if (lstat(".", &current_stat) == -1) {
+        perror("lstat");
+        close(fd);
+        free(buffer);
+        return NULL;
+    }
+
+    while (1) {
+        if (lstat("..", &parent_stat) == -1) {
+            perror("lstat");
+            close(fd);
+            free(buffer);
+            return NULL;
+        }
+
+        if (current_stat.st_dev == parent_stat.st_dev && current_stat.st_ino == parent_stat.st_ino) {
+            // Reached root directory
+            if (path[0] == '\0') {
+                *--path = '/';
+            }
+            break;
+        }
+
+        DIR* parent_dir = opendir("..");
+        if (parent_dir == NULL) {
+            perror("opendir");
+            close(fd);
+            free(buffer);
+            return NULL;
+        }
+
+        if (chdir("..") == -1) {
+            perror("chdir");
+            closedir(parent_dir);
+            close(fd);
+            free(buffer);
+            return NULL;
+        }
+
+        struct dirent* entry;
+        int found = 0;
+        while ((entry = readdir(parent_dir)) != NULL) {
+            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+                continue;
+
+            struct stat entry_stat;
+            if (lstat(entry->d_name, &entry_stat) == -1) {
+                continue;
+            }
+
+            if (entry_stat.st_ino == current_stat.st_ino && entry_stat.st_dev == current_stat.st_dev) {
+                size_t name_len = strlen(entry->d_name);
+                if ((path - buffer) < name_len + 1) {
+                    // Buffer overflow
+                    fprintf(stderr, "Path too long\n");
+                    closedir(parent_dir);
+                    close(fd);
+                    free(buffer);
+                    return NULL;
+                }
+
+                path -= name_len;
+                memcpy(path, entry->d_name, name_len);
+                *--path = '/';
+                found = 1;
+                break;
+            }
+        }
+
+        closedir(parent_dir);
+
+        if (!found) {
+            fprintf(stderr, "Directory entry not found\n");
+            close(fd);
+            free(buffer);
+            return NULL;
+        }
+
+        current_stat = parent_stat;
+    }
+
+    // Restore original directory
+    if (fchdir(fd) == -1) {
+        perror("fchdir");
+        close(fd);
+        free(buffer);
+        return NULL;
+    }
+    close(fd);
+
+    char* result = strdup(path);
+    free(buffer);
+    return result;
+}
 
 // prints the current working directory to the file_descriptor,
 // returns 1 if an error occurs, 0 otherwise
 int command_pwd(int file_descriptor){
     // Initialize the working directory string
     char* dir_string = NULL;
-    // getcwd() dynamically allocates memory for the path
-    char* current_working_directory = getcwd(NULL, 0);
+    char* current_working_directory = my_getcwd(NULL, 0);
     if (current_working_directory == NULL) // error handling
     {
         perror("can't find current working directory in main.c");
