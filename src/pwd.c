@@ -48,7 +48,8 @@ char* my_getcwd() {
             return NULL;
         }
 
-        if (current_stat.st_ino == parent_stat.st_ino) {
+        // on check si le répertoire courant est la racine et si la device est la même
+        if (current_stat.st_ino == parent_stat.st_ino && current_stat.st_dev == parent_stat.st_dev) {
             // on a atteint la racine
             if (path[0] == '\0') {
                 *--path = '/';
