@@ -83,8 +83,8 @@ char* my_getcwd() {
                 continue;
             }
 
-            if (entry_stat.st_ino == current_stat.st_ino && entry_stat.st_dev == current_stat.st_dev) {
-                size_t name_len = strlen(entry->d_name);
+            if (entry_stat.st_ino == current_stat.st_ino) {
+                int name_len = strlen(entry->d_name);
                 if ((path - buffer) < name_len + 1) {
                     // Buffer overflow
                     fprintf(stderr, "Path too long\n");
@@ -136,7 +136,7 @@ char* my_getcwd() {
 int command_pwd(int file_descriptor){
     // Initialize the working directory string
     char* dir_string = NULL;
-    char* current_working_directory = my_getcwd(NULL, 0);
+    char* current_working_directory = my_getcwd();
     if (current_working_directory == NULL) // error handling
     {
         perror("can't find current working directory in main.c");
