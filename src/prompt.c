@@ -8,8 +8,8 @@
 const char* prompt_suffix = "$ ";
 
 // colors for the prompt
-const char* cwd_color = "\033[0;34m";
-const char* reset = "\033[0m";
+const char* cwd_color = "\001\033[34m\002";
+const char* reset = "\001\033[00m\002";
 
 
 // prints the prompt the file_descriptor, returns 1 if an error occurs, 0 otherwise./
@@ -45,7 +45,7 @@ char *getPrompt(int last_val){
             current_working_directory = temp;
         }
         // the extra characters are the \0 , " ", and the recent execution status and +16 for the prompt color codes
-        int prompt_len = strlen(current_working_directory) + strlen(prompt_suffix) + 6 + 16;
+        int prompt_len = strlen(current_working_directory) + strlen(prompt_suffix) + 6 + 19;
         // allocation de la memoire pour le string du prompt
         prompt = malloc(prompt_len);
         // error handling
@@ -55,9 +55,9 @@ char *getPrompt(int last_val){
         }
         char* val_color = NULL;
         if (last_val == 0){
-            val_color = "\033[0;32m"; // green for success
+            val_color = "\001\033[32m\002"; // green for success
         }else{
-            val_color = "\033[0;91m"; // red for error
+            val_color = "\001\033[91m\002"; // red for error
         }
         // Construct the prompt using snprintf
         snprintf(prompt, prompt_len, "%s[%d]%s%s%s%s",val_color ,last_val, cwd_color, current_working_directory, reset, prompt_suffix);
