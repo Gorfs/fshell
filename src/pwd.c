@@ -49,7 +49,7 @@ char* my_getcwd() {
         }
 
         if (current_stat.st_ino == parent_stat.st_ino) {
-            // on a atteint la racine, on break la boucle
+            // on a atteint la racine
             if (path[0] == '\0') {
                 *--path = '/';
             }
@@ -83,7 +83,7 @@ char* my_getcwd() {
                 continue;
             }
 
-            if (entry_stat.st_ino == current_stat.st_ino) {
+            if (entry_stat.st_ino == current_stat.st_ino && entry_stat.st_dev == current_stat.st_dev) {
                 int name_len = strlen(entry->d_name);
                 if ((path - buffer) < name_len + 1) {
                     // Buffer overflow
