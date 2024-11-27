@@ -3,6 +3,7 @@
 #include <stdlib.h> // used for malloc()
 #include <stdio.h> // used for debugging mostly
 #include <string.h> // used for strlen()
+#include <pwd.h>
 
 
 const char* prompt_suffix = "$ ";
@@ -12,7 +13,7 @@ char *getPrompt(int last_val){
     char* prompt = NULL;
 
     // getcwd() dynamically allocates memory for the path, On doit donc la free apres que on l'as utiliser.
-    char* current_working_directory = getcwd(NULL, 0);
+    char* current_working_directory = my_getcwd();
     if (current_working_directory == NULL){
         perror("can't find current working directory in prompt.c");
         goto error;
