@@ -44,8 +44,8 @@ char *getPrompt(int last_val){
             free(current_working_directory);
             current_working_directory = temp;
         }
-        // the extra characters are the \0 , " ", and the recent execution status and +16 for the prompt color codes
-        int prompt_len = strlen(current_working_directory) + strlen(prompt_suffix) + 6 + 19;
+        // the extra characters are the \0 , " ", and the recent execution status and +20 for the prompt color codes
+        int prompt_len = strlen(current_working_directory) + strlen(prompt_suffix) + 6 + 20;
         // allocation de la memoire pour le string du prompt
         prompt = malloc(prompt_len);
         // error handling
