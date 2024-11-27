@@ -10,7 +10,12 @@
 #include <pwd.h>
 
 #define PATH_MAX 4096
+/**
+ * @brief fonction qui retourne le chemin absolu du répertoire courant
+ * @return char* : le chemin absolu du répertoire courant
+ */
 char* my_getcwd() {
+    // le buffer du resultat
     char* buffer = malloc(PATH_MAX);
     if (buffer == NULL) {
         perror("malloc");
@@ -43,8 +48,8 @@ char* my_getcwd() {
             return NULL;
         }
 
-        if (current_stat.st_dev == parent_stat.st_dev && current_stat.st_ino == parent_stat.st_ino) {
-            // Reached root directory
+        if (current_stat.st_ino == parent_stat.st_ino) {
+            // on a atteint la racine, on break la boucle
             if (path[0] == '\0') {
                 *--path = '/';
             }
@@ -123,8 +128,11 @@ char* my_getcwd() {
     return result;
 }
 
-// prints the current working directory to the file_descriptor,
-// returns 1 if an error occurs, 0 otherwise
+/**
+ * @brief fonction qui affiche le répertoire courant dans le file_descriptor
+ * @param file_descriptor : le file descriptor où on va écrire le répertoire courant
+ * @return int : 1 si une erreur se produit, 0 sinon
+ */
 int command_pwd(int file_descriptor){
     // Initialize the working directory string
     char* dir_string = NULL;
