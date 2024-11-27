@@ -16,7 +16,7 @@ void free_tokens(char*** tokens){
   free(tokens);
 }
 
-int command_exit(char*** commands, int i, int last_val){
+int command_exit(char*** commands, char** command, int last_val){
     if(commands == NULL || *commands == NULL || (*commands)[1] == NULL){
         if (commands != NULL){
           free_tokens(commands);
@@ -24,7 +24,7 @@ int command_exit(char*** commands, int i, int last_val){
         exit(last_val);
     }
     else{
-        int exit_code = atoi(commands[i][1]);
+        int exit_code = atoi(command[1]);
         free_tokens(commands);
         exit(exit_code);
     }
