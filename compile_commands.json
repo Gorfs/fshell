@@ -1,0 +1,130 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/main.o",
+      "src/main.c"
+    ],
+    "directory": "/Users/archie/Desktop/work/L3/fshell",
+    "file": "/Users/archie/Desktop/work/L3/fshell/src/main.c",
+    "output": "/Users/archie/Desktop/work/L3/fshell/build/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/prompt.o",
+      "src/prompt.c"
+    ],
+    "directory": "/Users/archie/Desktop/work/L3/fshell",
+    "file": "/Users/archie/Desktop/work/L3/fshell/src/prompt.c",
+    "output": "/Users/archie/Desktop/work/L3/fshell/build/prompt.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/tokenisation.o",
+      "src/tokenisation.c"
+    ],
+    "directory": "/Users/archie/Desktop/work/L3/fshell",
+    "file": "/Users/archie/Desktop/work/L3/fshell/src/tokenisation.c",
+    "output": "/Users/archie/Desktop/work/L3/fshell/build/tokenisation.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/commands.o",
+      "src/commands.c"
+    ],
+    "directory": "/Users/archie/Desktop/work/L3/fshell",
+    "file": "/Users/archie/Desktop/work/L3/fshell/src/commands.c",
+    "output": "/Users/archie/Desktop/work/L3/fshell/build/commands.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/pwd.o",
+      "src/pwd.c"
+    ],
+    "directory": "/Users/archie/Desktop/work/L3/fshell",
+    "file": "/Users/archie/Desktop/work/L3/fshell/src/pwd.c",
+    "output": "/Users/archie/Desktop/work/L3/fshell/build/pwd.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/exit.o",
+      "src/exit.c"
+    ],
+    "directory": "/Users/archie/Desktop/work/L3/fshell",
+    "file": "/Users/archie/Desktop/work/L3/fshell/src/exit.c",
+    "output": "/Users/archie/Desktop/work/L3/fshell/build/exit.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/cd.o",
+      "src/cd.c"
+    ],
+    "directory": "/Users/archie/Desktop/work/L3/fshell",
+    "file": "/Users/archie/Desktop/work/L3/fshell/src/cd.c",
+    "output": "/Users/archie/Desktop/work/L3/fshell/build/cd.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/ftype.o",
+      "src/ftype.c"
+    ],
+    "directory": "/Users/archie/Desktop/work/L3/fshell",
+    "file": "/Users/archie/Desktop/work/L3/fshell/src/ftype.c",
+    "output": "/Users/archie/Desktop/work/L3/fshell/build/ftype.o"
+  }
+]
