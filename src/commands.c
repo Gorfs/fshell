@@ -19,6 +19,22 @@ char* internal_commands[] = {"exit", "pwd", "cd", "ftype", NULL};
 // list of ignored delimiters when it comes to command execution
 char* ignored_delimiters[] = {";", "{", "}", NULL};
 
+int reconnect_stdin_to_terminal() {
+    int tty_fd = open("/dev/tty", O_RDWR);
+    if (tty_fd == -1) {
+        perror("open(/dev/tty)");
+        return -1;
+    }
+
+    if (dup2(tty_fd, STDIN_FILENO) == -1) {
+        perror("dup2(tty_fd, STDIN_FILENO)");
+        close(tty_fd);
+        return -1;
+    }
+
+    close(tty_fd);
+    return 0;
+}
 void check_stdin_stdout() {
     // Check if stdin is open
     if (fcntl(STDIN_FILENO, F_GETFD) == -1) {
@@ -288,7 +304,6 @@ int run_command(char*** commands, char** command, int last_val, int input_fd, in
         pid_t pid = fork();
         if (pid == 0) {
             // Child process
-            check_stdin_stdout();
             execvp(command_name, command);
             perror("error executing the command");
             exit(1);
@@ -334,14 +349,18 @@ int run_commands(char*** commands, int last_val){
         output_fd = fd[1];
         last_val = run_command(commands, commands[i], last_val, input_fd, output_fd);
         // if the input is a pipe, we close it
-        if (fd[0] != STDIN_FILENO){
-          close(fd[0]);
+        if (input_fd != STDIN_FILENO){
+          close(input_fd);
         }
+        // we are dealing with a delimiter for sure, no need to check if it's a pipe
+        close(fd[1]);
         // close the child process
         exit(last_val);
 
       }else{
         // parent process
+        // we never write to the pipe so we can close it directly
+        close(fd[1]);  // this line is important, otherwise the the shell will hang
         if(input_fd != STDIN_FILENO){ // close previous pipe
           close(input_fd);
         }
@@ -354,11 +373,11 @@ int run_commands(char*** commands, int last_val){
       }
 
     }else{
-      check_stdin_stdout() ;
       last_val = run_command(commands, commands[i], last_val, input_fd, output_fd);
       if(input_fd != STDIN_FILENO){
         close(input_fd);
       }
+      input_fd = STDIN_FILENO;
       if (commands[i+1] != NULL){
         i++; // skip next delimiter if it's present
       }
@@ -371,6 +390,6 @@ int run_commands(char*** commands, int last_val){
   if(output_fd != STDOUT_FILENO){
     close(output_fd);
   }
-  printf("input fd is : %d the output fd is : %d\n", input_fd, output_fd);
+  reconnect_stdin_to_terminal(); // used to reconnect stdin to the terminal after pipes
   return last_val;
 }

@@ -10,6 +10,9 @@
 #include <readline/readline.h>
 #include <readline/history.h> 
 #include <cd.h>
+#include <fcntl.h>
+
+
 
 int main(){
   int last_val = 0; // value of the last command executed
@@ -27,12 +30,14 @@ int main(){
   //  return 1;
   //}
   while (1){
+    printf("input = %d, output is %d\n", STDIN_FILENO, STDOUT_FILENO);
     prompt = getPrompt(last_val); 
     if(prompt == NULL){
       perror("error getting prompt in main.c");
       return 1;
     }
     rl_outstream = stderr;
+    check_stdin_stdout();
     char* input = readline(prompt);
     if (input == NULL){
       free(prompt);
