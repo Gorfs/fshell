@@ -11,12 +11,45 @@
 // temporary to use printf for debugging
 #include <stdio.h>
 #include <dirent.h>
+#include <fcntl.h>
+#include <errno.h>
 
 // list of internal commands
 char* internal_commands[] = {"exit", "pwd", "cd", "ftype", NULL};
 // list of ignored delimiters when it comes to command execution
 char* ignored_delimiters[] = {";", "{", "}", NULL};
 
+void check_stdin_stdout() {
+    // Check if stdin is open
+    if (fcntl(STDIN_FILENO, F_GETFD) == -1) {
+        if (errno == EBADF) {
+            fprintf(stderr, "stdin is not open\n");
+        } else {
+            perror("fcntl(STDIN_FILENO, F_GETFD)");
+        }
+    } else {
+        if (isatty(STDIN_FILENO)) {
+            fprintf(stderr, "stdin is open and connected to a terminal\n");
+        } else {
+            fprintf(stderr, "stdin is open and not connected to a terminal\n");
+        }
+    }
+
+    // Check if stdout is open
+    if (fcntl(STDOUT_FILENO, F_GETFD) == -1) {
+        if (errno == EBADF) {
+            fprintf(stderr, "stdout is not open\n");
+        } else {
+            perror("fcntl(STDOUT_FILENO, F_GETFD)");
+        }
+    } else {
+        if (isatty(STDOUT_FILENO)) {
+            fprintf(stderr, "stdout is open and connected to a terminal\n");
+        } else {
+            fprintf(stderr, "stdout is open and not connected to a terminal\n");
+        }
+    }
+}
 //**
 // * @brief check if a string is in a list of strings, supposes list is null terminated and length is >= 1 
 // * @param str : the string to check
@@ -27,11 +60,11 @@ int is_in_list(char* str, char** list){
   int i = 0 ;
   while(list[i] != NULL){
     if(strcmp(str, list[i]) == 0){
-      return 1;
+      return 0;
     }
     i++;
   }
-  return 0;
+  return 1;
 }
 
 int is_internal_command(char* command_name){
@@ -40,7 +73,7 @@ int is_internal_command(char* command_name){
 
 int is_ignored_delimiter(char* delimiter){
   if (delimiter == NULL){
-    return 1;
+    return 0;
   }
   return is_in_list(delimiter, ignored_delimiters);
 }
@@ -194,6 +227,30 @@ int run_for(char*** commands, int i, int last_val){
     return status;
 }
 
+/** 
+ * @brief returns input and output file descriptors depending on delmiter
+ * @param delmiter : string of the delimiter
+ * @return int[2] : array of 2 integers, the first one is the input file descriptor, the second one is the output file descriptor
+ * or null if an error occured
+ */
+int* handle_redirection(char* delimiter){
+  if(strcmp(delimiter, "|") == 0){
+    // pipe
+    int* fd = malloc(sizeof(int) * 2);
+    if(fd == NULL){
+      perror("malloc");
+      return NULL;
+    }
+    if(pipe(fd) == -1){
+      perror("pipe");
+      return NULL;
+    }
+    return fd;
+  }
+  // default case, if no redirection is found
+  return NULL;
+}
+
 
 // Function to run a single command, handling redirection and internal commands
 int run_command(char*** commands, char** command, int last_val, int input_fd, int output_fd) {
@@ -211,7 +268,7 @@ int run_command(char*** commands, char** command, int last_val, int input_fd, in
     char* command_name = command[0];
 
     // Determine if the command is internal or external
-    if (is_internal_command(command_name)) {
+    if (is_internal_command(command_name) == 0) {
         // Run the internal command
         if (strcmp(command_name, "exit") == 0) {
             command_exit(commands, command, status);
@@ -231,6 +288,7 @@ int run_command(char*** commands, char** command, int last_val, int input_fd, in
         pid_t pid = fork();
         if (pid == 0) {
             // Child process
+            check_stdin_stdout();
             execvp(command_name, command);
             perror("error executing the command");
             exit(1);
@@ -250,65 +308,69 @@ int run_command(char*** commands, char** command, int last_val, int input_fd, in
 
 int run_commands(char*** commands, int last_val){
   int input_fd = STDIN_FILENO;
-  int output_fd;
+  int output_fd = STDOUT_FILENO;
   for (int i = 0; commands[i] != NULL; i++){
-    output_fd = STDOUT_FILENO;
     // set the next delimiter
     char* next_delimiter = NULL;
     if(commands[i+1] != NULL){
       next_delimiter = commands[i+1][0];
     }
+    // base case
     if (commands[i][0] == NULL){
       continue;
+
     }else if (strcmp(commands[i][0], "for") == 0){
       last_val = run_for(commands, i, last_val);
       while(commands[i] != NULL && strcmp(commands[i][0], "}") != 0){
         i++;
       }
-    }else{
-      if (is_ignored_delimiter(next_delimiter) == 0){
-        // make a pipe
-        int fd[2];
-        if (pipe(fd) == -1){
-          perror("pipe");
-          return 1;
-        }
-        if (fork() == 0){
-          // child process
-          output_fd = fd[1];
-          close(fd[0]);
-          last_val = run_command(commands, commands[i], last_val, input_fd, output_fd);
-          close(fd[1]);
-          // if the input is a pipe, we close it
-          if (input_fd != STDIN_FILENO){
-            close(input_fd);
-          }
-          exit(last_val);
-        }else{
-          // parent process
-          close(fd[1]);
-          input_fd = fd[0];
-          
-          int result;
-          wait(&result);
-          last_val = WEXITSTATUS(result);
-          // we loop twice to skip the delimiter
-          i++;
-          continue;
-        }
-      }else{
+
+    }else if (is_ignored_delimiter(next_delimiter) == 1){ // if the next delimiter is not ignored
+      int* fd = handle_redirection(next_delimiter); 
+
+      int pid = fork();
+      if (pid == 0){
+        // child process
+        output_fd = fd[1];
         last_val = run_command(commands, commands[i], last_val, input_fd, output_fd);
-        if(input_fd != STDIN_FILENO){
+        // if the input is a pipe, we close it
+        if (fd[0] != STDIN_FILENO){
+          close(fd[0]);
+        }
+        // close the child process
+        exit(last_val);
+
+      }else{
+        // parent process
+        if(input_fd != STDIN_FILENO){ // close previous pipe
           close(input_fd);
         }
-        input_fd = STDIN_FILENO;
+        input_fd = fd[0]; // the input of the parent (and the subsequent command) is the output from the command
+        // do not modify the output of the parent
+        int result;
+        waitpid(pid , &result, 0);
+        last_val = WEXITSTATUS(result);
+        i++; // skip next delimiter
+      }
+
+    }else{
+      check_stdin_stdout() ;
+      last_val = run_command(commands, commands[i], last_val, input_fd, output_fd);
+      if(input_fd != STDIN_FILENO){
+        close(input_fd);
+      }
+      if (commands[i+1] != NULL){
+        i++; // skip next delimiter if it's present
       }
     }
-    if(input_fd != STDIN_FILENO){
-      close(input_fd);
-    }
   }
+  // clean up potential pipes
+  if(input_fd != STDIN_FILENO){
+    close(input_fd);
+  }
+  if(output_fd != STDOUT_FILENO){
+    close(output_fd);
+  }
+  printf("input fd is : %d the output fd is : %d\n", input_fd, output_fd);
   return last_val;
 }
-
-
