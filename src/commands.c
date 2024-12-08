@@ -12,13 +12,16 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <fcntl.h>
-#include <errno.h>
 
 // list of internal commands
 char* internal_commands[] = {"exit", "pwd", "cd", "ftype", NULL};
 // list of ignored delimiters when it comes to command execution
 char* ignored_delimiters[] = {";", "{", "}", NULL};
 
+/**
+ * @brief reconnect stdin to the terminal
+ * @return 0 if successful, -1 otherwise
+ */
 int reconnect_stdin_to_terminal() {
     int tty_fd = open("/dev/tty", O_RDWR);
     if (tty_fd == -1) {
@@ -35,43 +38,13 @@ int reconnect_stdin_to_terminal() {
     close(tty_fd);
     return 0;
 }
-void check_stdin_stdout() {
-    // Check if stdin is open
-    if (fcntl(STDIN_FILENO, F_GETFD) == -1) {
-        if (errno == EBADF) {
-            fprintf(stderr, "stdin is not open\n");
-        } else {
-            perror("fcntl(STDIN_FILENO, F_GETFD)");
-        }
-    } else {
-        if (isatty(STDIN_FILENO)) {
-            fprintf(stderr, "stdin is open and connected to a terminal\n");
-        } else {
-            fprintf(stderr, "stdin is open and not connected to a terminal\n");
-        }
-    }
 
-    // Check if stdout is open
-    if (fcntl(STDOUT_FILENO, F_GETFD) == -1) {
-        if (errno == EBADF) {
-            fprintf(stderr, "stdout is not open\n");
-        } else {
-            perror("fcntl(STDOUT_FILENO, F_GETFD)");
-        }
-    } else {
-        if (isatty(STDOUT_FILENO)) {
-            fprintf(stderr, "stdout is open and connected to a terminal\n");
-        } else {
-            fprintf(stderr, "stdout is open and not connected to a terminal\n");
-        }
-    }
-}
-//**
-// * @brief check if a string is in a list of strings, supposes list is null terminated and length is >= 1 
-// * @param str : the string to check
-// * @param list : the list of strings
-// * @return 1 if the string is in the list, 0 otherwise
-// */
+/**
+ * @brief check if a string is in a list of strings, supposes list is null terminated and length is >= 1 
+ * @param str : the string to check
+ * @param list : the list of strings
+ * @return 1 if the string is in the list, 0 otherwise
+ */
 int is_in_list(char* str, char** list){
   int i = 0 ;
   while(list[i] != NULL){
@@ -83,10 +56,20 @@ int is_in_list(char* str, char** list){
   return 1;
 }
 
+/**
+ * @brief check if a command is an internal command
+ * @param command_name : the name of the command
+ * @return 1 if the command is internal, 0 otherwise
+ */
 int is_internal_command(char* command_name){
   return is_in_list(command_name, internal_commands);
 }
 
+/**
+ * @brief check if a delimiter is ignored
+ * @param delimiter : the delimiter to check
+ * @return 1 if the delimiter is ignored, 0 otherwise
+ */ 
 int is_ignored_delimiter(char* delimiter){
   if (delimiter == NULL){
     return 0;
@@ -94,6 +77,11 @@ int is_ignored_delimiter(char* delimiter){
   return is_in_list(delimiter, ignored_delimiters);
 }
 
+/**
+ * @brief get the amount of tokens of a command
+ * @param tokens : the command
+ * @return the length of the command
+ */
 int len_command(char** tokens){
     int i = 0;
     while(tokens[i]){
@@ -102,6 +90,11 @@ int len_command(char** tokens){
     return i;
 }
 
+/**
+ * @brief list all the files in a directory
+ * @param path : the path of the directory
+ * @return a list of strings containing the path of the files in the directory
+ */
 char** list_path_files(char* path){
     DIR *dir;
     struct dirent *entry;
@@ -160,6 +153,13 @@ char** list_path_files(char* path){
     return files;
 }
 
+/**
+ * @brief format a command for a for loop
+ * @param command : the command to format
+ * @param var_name : the name of the variable
+ * @param file_name : the name of the file
+ * @return the formatted command
+ */
 char** format_for_loop_command(char** command, char* var_name, char* file_name){
     char** new_command = malloc(sizeof(char*) * (len_command(command) + 1));
     char new_var_name[strlen(var_name) + 2];
@@ -197,6 +197,13 @@ char** format_for_loop_command(char** command, char* var_name, char* file_name){
 }
 
 //["for", "F", "in", "words2"], ["{"], ["ftype", "$F"], ["}"]
+/**
+ * @brief run a for loop
+ *  @param commands : the list of commands
+ *  @param i : the index of the for loop
+ *  @param last_val : the value of the last command
+ *  @return the value of the last command
+ */ 
 int run_for(char*** commands, int i, int last_val){
     if (len_command(commands[i]) != 4){
         perror("for loop must have 4 arguments");
@@ -269,6 +276,15 @@ int* handle_redirection(char* delimiter){
 
 
 // Function to run a single command, handling redirection and internal commands
+/**
+ * @brief run a single command
+ * @param commands : the list of commands (only required for command_exit())
+ * @param command : the command to run
+ * @param last_val : the value of the last command
+ * @param input_fd : the input file descriptor
+ * @param output_fd : the output file descriptor
+ * @return the value of the last command
+ */
 int run_command(char*** commands, char** command, int last_val, int input_fd, int output_fd) {
     // Redirection for input and output
     if (input_fd != STDIN_FILENO) {
@@ -321,6 +337,12 @@ int run_command(char*** commands, char** command, int last_val, int input_fd, in
     return status;
 }
 
+/**
+ * @brief run a list of commands
+ * @param commands : the list of commands
+ * @param last_val : the value of the last command
+ * @return the value of the last command
+ */
 int run_commands(char*** commands, int last_val){
   int input_fd = STDIN_FILENO;
   int output_fd = STDOUT_FILENO;
@@ -342,7 +364,6 @@ int run_commands(char*** commands, int last_val){
 
     }else if (is_ignored_delimiter(next_delimiter) == 1){ // if the next delimiter is not ignored
       int* fd = handle_redirection(next_delimiter); 
-
       int pid = fork();
       if (pid == 0){
         // child process
@@ -373,13 +394,17 @@ int run_commands(char*** commands, int last_val){
       }
 
     }else{
+      // default case for command running
       last_val = run_command(commands, commands[i], last_val, input_fd, output_fd);
+      // close input pipe if it exists
       if(input_fd != STDIN_FILENO){
         close(input_fd);
       }
+      // reset intput for next command
       input_fd = STDIN_FILENO;
+      // skip next delimiter if it's present
       if (commands[i+1] != NULL){
-        i++; // skip next delimiter if it's present
+        i++; 
       }
     }
   }
