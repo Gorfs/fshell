@@ -256,22 +256,59 @@ int run_for(char*** commands, int i, int last_val){
  * @return int[2] : array of 2 integers, the first one is the input file descriptor, the second one is the output file descriptor
  * or null if an error occured
  */
-int* handle_redirection(char* delimiter){
-  if(strcmp(delimiter, "|") == 0){
-    // pipe
-    int* fd = malloc(sizeof(int) * 2);
-    if(fd == NULL){
-      perror("malloc");
-      return NULL;
-    }
-    if(pipe(fd) == -1){
-      perror("pipe");
-      return NULL;
-    }
-    return fd;
+int* handle_pipe(){
+  // pipe
+  int* fd = malloc(sizeof(int) * 2);
+  if(fd == NULL){
+    perror("malloc");
+    return NULL;
   }
-  // default case, if no redirection is found
-  return NULL;
+  if(pipe(fd) == -1){
+    perror("pipe");
+    return NULL;
+  }
+  return fd;
+}
+
+/**
+ * @brief returns input and output file descriptors depending on delmiter
+ * @param delimiter : string of the delimiter
+ * @param file_name : string of the file name
+ * @return int[2] : array of 2 integers, the first one is the input file descriptor, the second one is the output file descriptor
+ * or null if an error occured
+ */
+int* handle_redirection(char* delimiter, char* file_name){
+  // file descriptor for filename
+  // default stdin
+  int* fd = malloc(2 * sizeof(int));
+  if(fd == NULL){
+    perror("malloc");
+    return NULL;
+  }
+  fd[0] = STDIN_FILENO;
+  fd[1] = STDOUT_FILENO;
+  // handle the possible redirection
+  if(strcmp(delimiter, ">")){
+    fd[1] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+  }else if (strcmp(delimiter, ">>")){
+    fd[1] = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0666);
+  }else if (strcmp(delimiter, "<")){
+    fd[0] = open(file_name, O_RDONLY);
+  }else if (strcmp(delimiter, "2>")){
+    fd[1] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+  }else if (strcmp(delimiter, "2>>")){
+    fd[1] = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0666);
+  }else if(strcmp(delimiter, "<&")){
+    fd[0] = open(file_name, O_RDONLY);
+  }else if(strcmp(delimiter, "|>")){
+    fd[1] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+  }else if(strcmp(delimiter, "|>>")){
+    fd[1] = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0666);
+  }else if(strcmp(delimiter, "<>")){
+    fd[0] = open(file_name, O_RDWR | O_CREAT | O_TRUNC, 0666);
+  } 
+  return fd;
+  
 }
 
 
@@ -363,7 +400,14 @@ int run_commands(char*** commands, int last_val){
       }
 
     }else if (is_ignored_delimiter(next_delimiter) == 1){ // if the next delimiter is not ignored
-      int* fd = handle_redirection(next_delimiter); 
+      int* fd = NULL;
+      if (strcmp("|", next_delimiter) == 0){
+        fd = handle_pipe(); 
+      }else{
+        char* file_name = commands[i+2][0];
+        fd = handle_redirection(next_delimiter, file_name);
+        i += 2;// skip the delimiter, the file_name
+      }
       int pid = fork();
       if (pid == 0){
         // child process
