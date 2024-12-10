@@ -11,7 +11,7 @@ int cmd_delimiters_count = 12;
 /**
  * @brief fonction qui retourne si un string est un délimiteur ou non
  * @param potential_delimiter : le string à tester
- * @return int : 1 si c'est un délimiteur, -1 sinon
+ * @return int : 1 si c'est un délimiteur, 0 sinon
  */
 int is_delimiter(char* potential_delimiter){
     for(int i = 0 ; i < cmd_delimiters_count; i++){
@@ -19,7 +19,7 @@ int is_delimiter(char* potential_delimiter){
             return 1;
         }
     }
-    return -1;
+    return 0;
 }
 
 
