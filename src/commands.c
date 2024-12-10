@@ -152,13 +152,14 @@ int* handle_pipe(){
 int* handle_redirection(char* delimiter, char* file_name){
   // file descriptor for filename
   // default stdin
-  int* fd = malloc(2 * sizeof(int));
+  int* fd = malloc(3 * sizeof(int));
   if(fd == NULL){
     perror("malloc");
     return NULL;
   }
   fd[0] = STDIN_FILENO;
   fd[1] = STDOUT_FILENO;
+  fd[2] = STDERR_FILENO;
   // handle the possible redirection
   if(strcmp(delimiter, ">") == 0){
     fd[1] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
@@ -167,9 +168,9 @@ int* handle_redirection(char* delimiter, char* file_name){
   }else if (strcmp(delimiter, "<") == 0){
     fd[0] = open(file_name, O_RDONLY);
   }else if (strcmp(delimiter, "2>") == 0){
-    fd[1] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    fd[2] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
   }else if (strcmp(delimiter, "2>>") == 0){
-    fd[1] = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0666);
+    fd[2] = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0666);
   }else if(strcmp(delimiter, "<&") == 0){
     fd[0] = open(file_name, O_RDONLY);
   }else if(strcmp(delimiter, "|>") == 0){
@@ -235,9 +236,9 @@ int setup_fileDescriptors(char*** commands, int** fdArray){
     // if the previous delimiter is a redirection, we have skipped an input redirection, this is an edge case
     if(previous_delimiter != NULL && is_redirection_delimiter(previous_delimiter) == 1){
       int* fd = handle_redirection(previous_delimiter, commands[i][0]);
-      fdArray[cmd_index -1][1] = fd[1];
+      fdArray[cmd_index][2] = fd[2];
+      fdArray[cmd_index][1] = fd[1];
       fdArray[cmd_index][0] = fd[0];
-      cmd_index++;
     }
     
     // if the next delimiter is a pipe, we make a pipe and set the output of the command to the pipe as well as the input for the next command
@@ -256,6 +257,7 @@ int setup_fileDescriptors(char*** commands, int** fdArray){
       }
       fdArray[cmd_index][1] = fd[1];
       fdArray[cmd_index][0] = fd[0];
+      fdArray[cmd_index][2] = fd[2];
       // skip the next delimiter and the file name
       cmd_index++;
       i += 2;
@@ -425,7 +427,7 @@ int run_for(char*** commands, int i, int last_val){
             perror("error in format_for_loop_command");
             return 1;
         }
-        status = run_command(commands, formated_command, status, STDIN_FILENO, STDOUT_FILENO );
+        status = run_command(commands, formated_command, status, STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO); 
         for (int k = 0; formated_command[k] != NULL; k++){
             free(formated_command[k]);
         }
@@ -454,7 +456,7 @@ int run_for(char*** commands, int i, int last_val){
  * @param output_fd : the output file descriptor
  * @return the value of the last command
  */
-int run_command(char*** commands, char** command, int last_val, int input_fd, int output_fd) {
+int run_command(char*** commands, char** command, int last_val, int input_fd, int output_fd, int error_fd) {
   // check if the output file descriptor is valid
   if (is_fd_valid(output_fd) == -1) {
     perror("output file descriptor is invalid");
@@ -478,6 +480,13 @@ int run_command(char*** commands, char** command, int last_val, int input_fd, in
       return 1;
     }
   }
+  if(error_fd != STDERR_FILENO){
+    if(dup2(error_fd, STDERR_FILENO) == -1){
+      perror("dup2");
+      return 1;
+    }
+  }
+  
   int status = last_val;
   char* command_name = command[0];
 
@@ -533,6 +542,7 @@ int run_command(char*** commands, char** command, int last_val, int input_fd, in
 int run_commands(char*** commands, int last_val){
   int dup_stdin = dup(STDIN_FILENO);
   int dup_stdout = dup(STDOUT_FILENO);
+  int dup_stderr = dup(STDERR_FILENO);
   // setup descriptor array
   int total_cmds = length_of_total_input(commands);
   int** command_fileDescriptors = malloc(sizeof(int*) * (total_cmds + 1));// +1 for the null terminator
@@ -569,7 +579,7 @@ int run_commands(char*** commands, int last_val){
       // pipe, so we fork()
       if (fork() == 0){
         // child
-        last_val = run_command(commands, commands[i], last_val, command_fileDescriptors[i][0], command_fileDescriptors[i][1]);
+        last_val = run_command(commands, commands[i], last_val, command_fileDescriptors[i][0], command_fileDescriptors[i][1], command_fileDescriptors[i][2]);
         exit(last_val);
       }else{
         // parent
@@ -590,7 +600,7 @@ int run_commands(char*** commands, int last_val){
       if(commands[cmd_index] == NULL){
         printf("commands[%d] is NULL\n", cmd_index);
       }
-      last_val = run_command(commands, commands[i], last_val, command_fileDescriptors[cmd_index][0], command_fileDescriptors[cmd_index][1]);
+      last_val = run_command(commands, commands[i], last_val, command_fileDescriptors[cmd_index][0], command_fileDescriptors[cmd_index][1], command_fileDescriptors[cmd_index][2]);
       // if the next delimiter is a redirection, we skip the next delimiter, and the file name
       if(commands[i+1] != NULL && is_redirection_delimiter(commands[i+1][0]) == 1){
         i += 2;
@@ -621,6 +631,7 @@ int run_commands(char*** commands, int last_val){
 
   dup2(dup_stdin, STDIN_FILENO);
   dup2(dup_stdout, STDOUT_FILENO);
+  dup2(dup_stderr, STDERR_FILENO);
   
   reconnect_stdin_to_terminal(); // used to reconnect stdin to the terminal after pipes
   return last_val;
