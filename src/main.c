@@ -36,6 +36,7 @@ int main(){
       return 1;
     }
     rl_outstream = stderr;
+
     char* input = readline(prompt);
     if (input == NULL){
       free(prompt);
@@ -44,14 +45,14 @@ int main(){
     add_history(input);
     // tokenise the input
     char*** tokens = tokenise_cmds(input);
-    
+
     if (input != NULL){
       free(input);
     }
     if (prompt != NULL){
       free(prompt);
     }
-    // print_tokenised_cmds(tokens); // TODO: remove debug for tokens
+    //print_tokenised_cmds(tokens); // TODO: remove debug for tokens
     if (tokens != NULL && *tokens != NULL && **tokens != NULL){
       last_val = run_commands(tokens, last_val);
     }
