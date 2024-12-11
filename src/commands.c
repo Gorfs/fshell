@@ -571,9 +571,9 @@ int run_command(char*** commands, char** command, int last_val, int input_fd, in
   if (is_internal_command(command_name) == 1) {
     // Run the internal command
     if (strcmp(command_name, "exit") == 0) {
-      command_exit(commands, command, status);
+      status = command_exit(commands, command, status);
     } else if (strcmp(command_name, "pwd") == 0) {
-      status = command_pwd(STDOUT_FILENO);
+      status = command_pwd(command);
     } else if (strcmp(command_name, "cd") == 0) {
       status = command_cd(command);
     } else if (strcmp(command_name, "ftype") == 0) {
@@ -671,12 +671,7 @@ int run_commands(char*** commands, int last_val){
       }
     }else{
       // no pipe, so we run the command
-      if(command_fileDescriptors[cmd_index] == NULL){
-        printf("command_fileDescriptors[%d] is NULL\n", cmd_index);
-      }
-      if(commands[cmd_index] == NULL){
-        printf("commands[%d] is NULL\n", cmd_index);
-      }
+      
       last_val = run_command(commands, commands[i], last_val, command_fileDescriptors[cmd_index][0], command_fileDescriptors[cmd_index][1], command_fileDescriptors[cmd_index][2]);
       // if the next delimiter is a redirection, we skip the next delimiter, and the file name
       if(commands[i+1] != NULL && is_redirection_delimiter(commands[i+1][0]) == 1){
