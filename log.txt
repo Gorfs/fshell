@@ -1,0 +1,1286 @@
+running command: ftype
+running command: ftype
+running command: ftype
+running command: ftype
+running command: ftype
+running command: ftype
+running command: ftype
+running command: ftype
+running command: ftype
+running command: ftype
+running command: ftype
+running command: ftype
+running command: ftype
+running command: ftype
+running command: ftype
+running command: ftype
+running command: ftype
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: echo
+running command: echo
+running command: echo
+running command: echo
+running command: echo
+running command: echo
+running command: echo
+running command: echo
+running command: echo
+running command: echo
+running command: echo
+running command: echo
+running command: echo
+running command: echo
+running command: echo
+running command: echo
+running command: echo
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append3
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ./append
+running command: ftypewords2/guilt
+running command: ftypewords2/mouse
+running command: ftypewords2/house
+running command: ftypewords2/tilt
+running command: ftypewords2/hilt
+running command: ftypewords2/stroll
+running command: ftypewords2/team
+running command: ftypewords2/troll
+running command: ftypewords2/steam
+running command: ftypewords2/theft
+running command: ftypewords2/hay
+running command: ftypewords2/pull
+running command: ftypewords2/mass
+running command: ftypewords2/rob
+running command: ftypewords2/proud
+running command: ftypewords2/node
+running command: ftypewords2/say
+running command: ./appendloop_outwords2/guilt
+running command: ./appendloop_outwords2/mouse
+running command: ./appendloop_outwords2/house
+running command: ./appendloop_outwords2/tilt
+running command: ./appendloop_outwords2/hilt
+running command: ./appendloop_outwords2/stroll
+running command: ./appendloop_outwords2/team
+running command: ./appendloop_outwords2/troll
+running command: ./appendloop_outwords2/steam
+running command: ./appendloop_outwords2/theft
+running command: ./appendloop_outwords2/hay
+running command: ./appendloop_outwords2/pull
+running command: ./appendloop_outwords2/mass
+running command: ./appendloop_outwords2/rob
+running command: ./appendloop_outwords2/proud
+running command: ./appendloop_outwords2/node
+running command: ./appendloop_outwords2/say
+running command: echo123
+running command: echo123
+running command: echo123
+running command: echo123
+running command: echo123
+running command: echo123
+running command: echo123
+running command: echo123
+running command: echo123
+running command: echo123
+running command: echo123
+running command: echo123
+running command: echo123
+running command: echo123
+running command: echo123
+running command: echo123
+running command: echo123
+running command: ./append3loop_outwords2/guilt-words2/guilt
+running command: ./append3loop_outwords2/mouse-words2/mouse
+running command: ./append3loop_outwords2/house-words2/house
+running command: ./append3loop_outwords2/tilt-words2/tilt
+running command: ./append3loop_outwords2/hilt-words2/hilt
+running command: ./append3loop_outwords2/stroll-words2/stroll
+running command: ./append3loop_outwords2/team-words2/team
+running command: ./append3loop_outwords2/troll-words2/troll
+running command: ./append3loop_outwords2/steam-words2/steam
+running command: ./append3loop_outwords2/theft-words2/theft
+running command: ./append3loop_outwords2/hay-words2/hay
+running command: ./append3loop_outwords2/pull-words2/pull
+running command: ./append3loop_outwords2/mass-words2/mass
+running command: ./append3loop_outwords2/rob-words2/rob
+running command: ./append3loop_outwords2/proud-words2/proud
+running command: ./append3loop_outwords2/node-words2/node
+running command: ./append3loop_outwords2/say-words2/say
+running command: ./appendloop_outwords3/guilt
+running command: ./appendloop_outwords3/mouse
+running command: ./appendloop_outwords3/house
+running command: ./appendloop_outwords3/tilt
+running command: ./appendloop_outwords3/hilt
+running command: ./appendloop_outwords3/team
+running command: ./appendloop_outwords3/troll
+running command: ./appendloop_outwords3/theft
+running command: ./appendloop_outwords3/hay
+running command: ./appendloop_outwords3/pull
+running command: ./appendloop_outwords3/rob
+running command: ./appendloop_outwords3/proud
+running command: ./appendloop_outwords3/node
+running command: ./appendloop_outwords3/say
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+running command: ./append3loop_outwords2/guilt-$F=$F
+running command: ./append3loop_outwords2/mouse-$F=$F
+running command: ./append3loop_outwords2/house-$F=$F
+running command: ./append3loop_outwords2/tilt-$F=$F
+running command: ./append3loop_outwords2/hilt-$F=$F
+running command: ./append3loop_outwords2/stroll-$F=$F
+running command: ./append3loop_outwords2/team-$F=$F
+running command: ./append3loop_outwords2/troll-$F=$F
+running command: ./append3loop_outwords2/steam-$F=$F
+running command: ./append3loop_outwords2/theft-$F=$F
+running command: ./append3loop_outwords2/hay-$F=$F
+running command: ./append3loop_outwords2/pull-$F=$F
+running command: ./append3loop_outwords2/mass-$F=$F
+running command: ./append3loop_outwords2/rob-$F=$F
+running command: ./append3loop_outwords2/proud-$F=$F
+running command: ./append3loop_outwords2/node-$F=$F
+running command: ./append3loop_outwords2/say-$F=$F
+running command: ./appendRdir-3/guilt
+running command: ./appendRdir-3/mouse
+running command: ./appendRdir-3/house
+running command: ./appendRdir-3/tilt
+running command: ./appendRdir-3/hilt
+running command: ./appendRdir-3/team
+running command: ./appendRdir-3/troll
+running command: ./appendRdir-3/theft
+running command: ./appendRdir-3/hay
+running command: ./appendRdir-3/pull
+running command: ./appendRdir-3/rob
+running command: ./appendRdir-3/proud
+running command: ./appendRdir-3/node
+running command: ./appendRdir-3/say
+var_name: F
+running command: ftypewords2/guilt
+var_name: F
+running command: ftypewords2/mouse
+var_name: F
+running command: ftypewords2/house
+var_name: F
+running command: ftypewords2/tilt
+var_name: F
+running command: ftypewords2/hilt
+var_name: F
+running command: ftypewords2/stroll
+var_name: F
+running command: ftypewords2/team
+var_name: F
+running command: ftypewords2/troll
+var_name: F
+running command: ftypewords2/steam
+var_name: F
+running command: ftypewords2/theft
+var_name: F
+running command: ftypewords2/hay
+var_name: F
+running command: ftypewords2/pull
+var_name: F
+running command: ftypewords2/mass
+var_name: F
+running command: ftypewords2/rob
+var_name: F
+running command: ftypewords2/proud
+var_name: F
+running command: ftypewords2/node
+var_name: F
+running command: ftypewords2/say
+var_name: F
+running command: ./appendloop_outwords2/guilt
+var_name: F
+running command: ./appendloop_outwords2/mouse
+var_name: F
+running command: ./appendloop_outwords2/house
+var_name: F
+running command: ./appendloop_outwords2/tilt
+var_name: F
+running command: ./appendloop_outwords2/hilt
+var_name: F
+running command: ./appendloop_outwords2/stroll
+var_name: F
+running command: ./appendloop_outwords2/team
+var_name: F
+running command: ./appendloop_outwords2/troll
+var_name: F
+running command: ./appendloop_outwords2/steam
+var_name: F
+running command: ./appendloop_outwords2/theft
+var_name: F
+running command: ./appendloop_outwords2/hay
+var_name: F
+running command: ./appendloop_outwords2/pull
+var_name: F
+running command: ./appendloop_outwords2/mass
+var_name: F
+running command: ./appendloop_outwords2/rob
+var_name: F
+running command: ./appendloop_outwords2/proud
+var_name: F
+running command: ./appendloop_outwords2/node
+var_name: F
+running command: ./appendloop_outwords2/say
+var_name: F
+running command: echo123
+var_name: F
+running command: echo123
+var_name: F
+running command: echo123
+var_name: F
+running command: echo123
+var_name: F
+running command: echo123
+var_name: F
+running command: echo123
+var_name: F
+running command: echo123
+var_name: F
+running command: echo123
+var_name: F
+running command: echo123
+var_name: F
+running command: echo123
+var_name: F
+running command: echo123
+var_name: F
+running command: echo123
+var_name: F
+running command: echo123
+var_name: F
+running command: echo123
+var_name: F
+running command: echo123
+var_name: F
+running command: echo123
+var_name: F
+running command: echo123
+var_name: F
+running command: ./append3loop_outwords2/guilt-words2/guilt
+var_name: F
+running command: ./append3loop_outwords2/mouse-words2/mouse
+var_name: F
+running command: ./append3loop_outwords2/house-words2/house
+var_name: F
+running command: ./append3loop_outwords2/tilt-words2/tilt
+var_name: F
+running command: ./append3loop_outwords2/hilt-words2/hilt
+var_name: F
+running command: ./append3loop_outwords2/stroll-words2/stroll
+var_name: F
+running command: ./append3loop_outwords2/team-words2/team
+var_name: F
+running command: ./append3loop_outwords2/troll-words2/troll
+var_name: F
+running command: ./append3loop_outwords2/steam-words2/steam
+var_name: F
+running command: ./append3loop_outwords2/theft-words2/theft
+var_name: F
+running command: ./append3loop_outwords2/hay-words2/hay
+var_name: F
+running command: ./append3loop_outwords2/pull-words2/pull
+var_name: F
+running command: ./append3loop_outwords2/mass-words2/mass
+var_name: F
+running command: ./append3loop_outwords2/rob-words2/rob
+var_name: F
+running command: ./append3loop_outwords2/proud-words2/proud
+var_name: F
+running command: ./append3loop_outwords2/node-words2/node
+var_name: F
+running command: ./append3loop_outwords2/say-words2/say
+var_name: F
+running command: ./appendloop_outwords3/guilt
+var_name: F
+running command: ./appendloop_outwords3/mouse
+var_name: F
+running command: ./appendloop_outwords3/house
+var_name: F
+running command: ./appendloop_outwords3/tilt
+var_name: F
+running command: ./appendloop_outwords3/hilt
+var_name: F
+running command: ./appendloop_outwords3/team
+var_name: F
+running command: ./appendloop_outwords3/troll
+var_name: F
+running command: ./appendloop_outwords3/theft
+var_name: F
+running command: ./appendloop_outwords3/hay
+var_name: F
+running command: ./appendloop_outwords3/pull
+var_name: F
+running command: ./appendloop_outwords3/rob
+var_name: F
+running command: ./appendloop_outwords3/proud
+var_name: F
+running command: ./appendloop_outwords3/node
+var_name: F
+running command: ./appendloop_outwords3/say
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_out$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+running command: ./append3loop_outwords2/guilt-$F=$F
+var_name: F
+running command: ./append3loop_outwords2/mouse-$F=$F
+var_name: F
+running command: ./append3loop_outwords2/house-$F=$F
+var_name: F
+running command: ./append3loop_outwords2/tilt-$F=$F
+var_name: F
+running command: ./append3loop_outwords2/hilt-$F=$F
+var_name: F
+running command: ./append3loop_outwords2/stroll-$F=$F
+var_name: F
+running command: ./append3loop_outwords2/team-$F=$F
+var_name: F
+running command: ./append3loop_outwords2/troll-$F=$F
+var_name: F
+running command: ./append3loop_outwords2/steam-$F=$F
+var_name: F
+running command: ./append3loop_outwords2/theft-$F=$F
+var_name: F
+running command: ./append3loop_outwords2/hay-$F=$F
+var_name: F
+running command: ./append3loop_outwords2/pull-$F=$F
+var_name: F
+running command: ./append3loop_outwords2/mass-$F=$F
+var_name: F
+running command: ./append3loop_outwords2/rob-$F=$F
+var_name: F
+running command: ./append3loop_outwords2/proud-$F=$F
+var_name: F
+running command: ./append3loop_outwords2/node-$F=$F
+var_name: F
+running command: ./append3loop_outwords2/say-$F=$F
+var_name: F
+running command: ./appendRdir-3/guilt
+var_name: F
+running command: ./appendRdir-3/mouse
+var_name: F
+running command: ./appendRdir-3/house
+var_name: F
+running command: ./appendRdir-3/tilt
+var_name: F
+running command: ./appendRdir-3/hilt
+var_name: F
+running command: ./appendRdir-3/team
+var_name: F
+running command: ./appendRdir-3/troll
+var_name: F
+running command: ./appendRdir-3/theft
+var_name: F
+running command: ./appendRdir-3/hay
+var_name: F
+running command: ./appendRdir-3/pull
+var_name: F
+running command: ./appendRdir-3/rob
+var_name: F
+running command: ./appendRdir-3/proud
+var_name: F
+running command: ./appendRdir-3/node
+var_name: F
+running command: ./appendRdir-3/say
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/guilt
+running command: ftypewords2/guilt
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/mouse
+running command: ftypewords2/mouse
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/house
+running command: ftypewords2/house
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/tilt
+running command: ftypewords2/tilt
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/hilt
+running command: ftypewords2/hilt
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/stroll
+running command: ftypewords2/stroll
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/team
+running command: ftypewords2/team
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/troll
+running command: ftypewords2/troll
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/steam
+running command: ftypewords2/steam
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/theft
+running command: ftypewords2/theft
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/hay
+running command: ftypewords2/hay
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/pull
+running command: ftypewords2/pull
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/mass
+running command: ftypewords2/mass
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/rob
+running command: ftypewords2/rob
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/proud
+running command: ftypewords2/proud
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/node
+running command: ftypewords2/node
+var_name: F
+old_command: ftype$F
+new_command: ftypewords2/say
+running command: ftypewords2/say
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/guilt
+running command: ./appendloop_outwords2/guilt
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/mouse
+running command: ./appendloop_outwords2/mouse
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/house
+running command: ./appendloop_outwords2/house
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/tilt
+running command: ./appendloop_outwords2/tilt
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/hilt
+running command: ./appendloop_outwords2/hilt
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/stroll
+running command: ./appendloop_outwords2/stroll
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/team
+running command: ./appendloop_outwords2/team
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/troll
+running command: ./appendloop_outwords2/troll
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/steam
+running command: ./appendloop_outwords2/steam
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/theft
+running command: ./appendloop_outwords2/theft
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/hay
+running command: ./appendloop_outwords2/hay
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/pull
+running command: ./appendloop_outwords2/pull
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/mass
+running command: ./appendloop_outwords2/mass
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/rob
+running command: ./appendloop_outwords2/rob
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/proud
+running command: ./appendloop_outwords2/proud
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/node
+running command: ./appendloop_outwords2/node
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords2/say
+running command: ./appendloop_outwords2/say
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/guilt-words2/guilt
+running command: ./append3loop_outwords2/guilt-words2/guilt
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/mouse-words2/mouse
+running command: ./append3loop_outwords2/mouse-words2/mouse
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/house-words2/house
+running command: ./append3loop_outwords2/house-words2/house
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/tilt-words2/tilt
+running command: ./append3loop_outwords2/tilt-words2/tilt
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/hilt-words2/hilt
+running command: ./append3loop_outwords2/hilt-words2/hilt
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/stroll-words2/stroll
+running command: ./append3loop_outwords2/stroll-words2/stroll
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/team-words2/team
+running command: ./append3loop_outwords2/team-words2/team
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/troll-words2/troll
+running command: ./append3loop_outwords2/troll-words2/troll
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/steam-words2/steam
+running command: ./append3loop_outwords2/steam-words2/steam
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/theft-words2/theft
+running command: ./append3loop_outwords2/theft-words2/theft
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/hay-words2/hay
+running command: ./append3loop_outwords2/hay-words2/hay
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/pull-words2/pull
+running command: ./append3loop_outwords2/pull-words2/pull
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/mass-words2/mass
+running command: ./append3loop_outwords2/mass-words2/mass
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/rob-words2/rob
+running command: ./append3loop_outwords2/rob-words2/rob
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/proud-words2/proud
+running command: ./append3loop_outwords2/proud-words2/proud
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/node-words2/node
+running command: ./append3loop_outwords2/node-words2/node
+var_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./append3loop_outwords2/say-words2/say
+running command: ./append3loop_outwords2/say-words2/say
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords3/guilt
+running command: ./appendloop_outwords3/guilt
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords3/mouse
+running command: ./appendloop_outwords3/mouse
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords3/house
+running command: ./appendloop_outwords3/house
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords3/tilt
+running command: ./appendloop_outwords3/tilt
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords3/hilt
+running command: ./appendloop_outwords3/hilt
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords3/team
+running command: ./appendloop_outwords3/team
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords3/troll
+running command: ./appendloop_outwords3/troll
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords3/theft
+running command: ./appendloop_outwords3/theft
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords3/hay
+running command: ./appendloop_outwords3/hay
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords3/pull
+running command: ./appendloop_outwords3/pull
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords3/rob
+running command: ./appendloop_outwords3/rob
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords3/proud
+running command: ./appendloop_outwords3/proud
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords3/node
+running command: ./appendloop_outwords3/node
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appendloop_outwords3/say
+running command: ./appendloop_outwords3/say
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appendloop_out$F.extension
+running command: ./appendloop_out$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appendloop_outprefix$F.extension
+running command: ./appendloop_outprefix$F.extension
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/guilt-$F=$F
+running command: ./append3loop_outwords2/guilt-$F=$F
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/mouse-$F=$F
+running command: ./append3loop_outwords2/mouse-$F=$F
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/house-$F=$F
+running command: ./append3loop_outwords2/house-$F=$F
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/tilt-$F=$F
+running command: ./append3loop_outwords2/tilt-$F=$F
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/hilt-$F=$F
+running command: ./append3loop_outwords2/hilt-$F=$F
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/stroll-$F=$F
+running command: ./append3loop_outwords2/stroll-$F=$F
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/team-$F=$F
+running command: ./append3loop_outwords2/team-$F=$F
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/troll-$F=$F
+running command: ./append3loop_outwords2/troll-$F=$F
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/steam-$F=$F
+running command: ./append3loop_outwords2/steam-$F=$F
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/theft-$F=$F
+running command: ./append3loop_outwords2/theft-$F=$F
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/hay-$F=$F
+running command: ./append3loop_outwords2/hay-$F=$F
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/pull-$F=$F
+running command: ./append3loop_outwords2/pull-$F=$F
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/mass-$F=$F
+running command: ./append3loop_outwords2/mass-$F=$F
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/rob-$F=$F
+running command: ./append3loop_outwords2/rob-$F=$F
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/proud-$F=$F
+running command: ./append3loop_outwords2/proud-$F=$F
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/node-$F=$F
+running command: ./append3loop_outwords2/node-$F=$F
+var_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./append3loop_outwords2/say-$F=$F
+running command: ./append3loop_outwords2/say-$F=$F
+var_name: F
+old_command: ./appendR$F
+new_command: ./appendRdir-3/guilt
+running command: ./appendRdir-3/guilt
+var_name: F
+old_command: ./appendR$F
+new_command: ./appendRdir-3/mouse
+running command: ./appendRdir-3/mouse
+var_name: F
+old_command: ./appendR$F
+new_command: ./appendRdir-3/house
+running command: ./appendRdir-3/house
+var_name: F
+old_command: ./appendR$F
+new_command: ./appendRdir-3/tilt
+running command: ./appendRdir-3/tilt
+var_name: F
+old_command: ./appendR$F
+new_command: ./appendRdir-3/hilt
+running command: ./appendRdir-3/hilt
+var_name: F
+old_command: ./appendR$F
+new_command: ./appendRdir-3/team
+running command: ./appendRdir-3/team
+var_name: F
+old_command: ./appendR$F
+new_command: ./appendRdir-3/troll
+running command: ./appendRdir-3/troll
+var_name: F
+old_command: ./appendR$F
+new_command: ./appendRdir-3/theft
+running command: ./appendRdir-3/theft
+var_name: F
+old_command: ./appendR$F
+new_command: ./appendRdir-3/hay
+running command: ./appendRdir-3/hay
+var_name: F
+old_command: ./appendR$F
+new_command: ./appendRdir-3/pull
+running command: ./appendRdir-3/pull
+var_name: F
+old_command: ./appendR$F
+new_command: ./appendRdir-3/rob
+running command: ./appendRdir-3/rob
+var_name: F
+old_command: ./appendR$F
+new_command: ./appendRdir-3/proud
+running command: ./appendRdir-3/proud
+var_name: F
+old_command: ./appendR$F
+new_command: ./appendRdir-3/node
+running command: ./appendRdir-3/node
+var_name: F
+old_command: ./appendR$F
+new_command: ./appendRdir-3/say
+running command: ./appendRdir-3/say
+var_name: F
+old_command: ftype$words2/guilt
+new_command:  Oóáªª Oóáªªvar_name: F
+old_command: ./appendloop_out$words2/guilt
+new_command: var_name: F
+old_command: echo123
+new_command:  _wËªª _wËªªvar_name: F
+old_command: ./append3loop_out$words2/guilt-$words2/guilt
+new_command: var_name: F
+old_command: ./appendloop_out$words3/guilt
+new_command: var_name: F
+old_command: ./appendloop_out$words2/guilt.extension
+new_command: var_name: F
+old_command: ./appendloop_outprefix$words2/guilt.extension
+new_command: var_name: F
+old_command: ./append3loop_out$words2/guilt-$words2/guilt=$words2/guilt
+new_command: var_name: F
+old_command: ./appendR$dir-3/guilt
+new_command: var_name: F
+old_command: ftype$F
+new_command: ftypÿÿvar_name: F
+old_command: ./appendloop_out$F
+new_command: ./appen$
+k„ÿÿvar_name: F
+old_command: echo123
+new_command: ech¬ÿÿvar_name: F
+var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appen$
+¸ÿÿvar_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appen$
+extensio2/guiltvar_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appenprefix$woextensioltvar_name: F
+var_name: F
+old_command: ./appendR$F
+new_command: ./appen$
+ÿ¬ÿÿvar_name: F
+running command: var_name: F
+running command: var_name: F
+running command: var_name: F
+running command: var_name: F
+running command: var_name: F
+running command: var_name: F
+running command: var_name: F
+running command: var_name: F
+running command: var_name: F
+old_command: ftype$F
+new_command: ftypvar_name: F
+old_command: ./appendloop_out$F
+new_command: ./appen$var_name: F
+old_command: echo123
+new_command: echvar_name: F
+old_command: ./append3loop_out$F-$F
+new_command: ./appendloop_ou$$var_name: F
+old_command: ./appendloop_out$F
+new_command: ./appen$var_name: F
+old_command: ./appendloop_out$F.extension
+new_command: ./appen$woextensiovar_name: F
+old_command: ./appendloop_outprefix$F.extension
+new_command: ./appenprefix$woextensiovar_name: F
+old_command: ./append3loop_out$F-$F=$F
+new_command: ./appendloop_ou$$wo$var_name: F
+old_command: ./appendR$F
+new_command: ./appen$var_name: F
+old_command: ftypewords2/guilt
+new_command: ftypewords2/guilt
+running command: ftypewords2/guilt
+var_name: F
+var_name: F
+old_command: ./appendloop_outwords2/guilt
+new_command: ./appendloop_outwords2/guilt
+running command: ./appendloop_outwords2/guilt
+var_name: F
+var_name: F
+old_command: echo123
+new_command: echo123
+running command: echo123
+var_name: F
+var_name: F
+old_command: ./append3loop_outwords2/guilt-words2/guilt
+new_command: ./append3loop_outwords2/guilt-words2/guilt
+running command: ./append3loop_outwords2/guilt-words2/guilt
+var_name: F
+var_name: F
+old_command: ./appendloop_outwords3/guilt
+new_command: ./appendloop_outwords3/guilt
+running command: ./appendloop_outwords3/guilt
+var_name: F
+var_name: F
+old_command: ./appendloop_outwords2/guilt.extension
+new_command: ./appendloop_outwords2/guilt.extension
+running command: ./appendloop_outwords2/guilt.extension
+var_name: F
+var_name: F
+old_command: ./appendloop_outprefixwords2/guilt.extension
+new_command: ./appendloop_outprefixwords2/guilt.extension
+running command: ./appendloop_outprefixwords2/guilt.extension
+var_name: F
+var_name: F
+old_command: ./append3loop_outwords2/guilt-words2/guilt=words2/guilt
+new_command: ./append3loop_outwords2/guilt-words2/guilt=words2/guilt
+running command: ./append3loop_outwords2/guilt-words2/guilt=words2/guilt
+var_name: F
+var_name: F
+old_command: ./appendRdir-3/guilt
+new_command: ./appendRdir-3/guilt
+running command: ./appendRdir-3/guilt
+var_name: F

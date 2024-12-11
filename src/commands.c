@@ -60,6 +60,76 @@ int reconnect_stdin_to_terminal() {
 }
 
 
+/** 
+ * @brief repalce all occurences of old with new in string
+ * @param str the string that we copy to make the new string
+ * @param old the string that we replace with new
+ * @param new_str replaced old in the str
+ * @return char* copy of str with all occurences changed, NULL if error
+ */
+char* str_replace(const char* str, const char* old, const char* new_str) {
+    // Check for null pointers
+    if (str == NULL || old == NULL || new_str == NULL) {
+        return NULL;
+    }
+
+    // Calculate the lengths of the strings
+    size_t str_len = strlen(str);
+    size_t old_len = strlen(old);
+    size_t new_len = strlen(new_str);
+
+    // If the old string is empty, return a copy of the original string
+    if (old_len == 0) {
+        return strdup(str);
+    }
+
+    // Count the number of times the old string occurs in the original string
+    int count = 0;
+    const char* tmp = str;
+    while ((tmp = strstr(tmp, old)) != NULL) {
+        count++;
+        tmp += old_len;
+    }
+
+    // Calculate the length of the new string
+    size_t new_str_len = str_len + count * (new_len - old_len) + 1;
+    char* result = (char*)malloc(new_str_len);
+    if (result == NULL) {
+        perror("malloc");
+        return NULL;
+    }
+
+    // Perform the replacement
+    char* dst = result;
+    const char* src = str;
+    while (count > 0) {
+        // Find the next occurrence of the old string
+        tmp = strstr(src, old);
+        if (tmp == NULL) {
+            break;
+        }
+
+        // Copy the part of the string before the old string
+        size_t len = tmp - src;
+        strncpy(dst, src, len);
+        dst += len;
+
+        // Copy the new string
+        strcpy(dst, new_str);
+        dst += new_len;
+
+        // Move the source pointer past the old string
+        src = tmp + old_len;
+        count--;
+    }
+
+    // Copy the remaining part of the original string
+    strcpy(dst, src);
+
+    return result;
+}
+
+
 /**
  * @brief check if a string is in a list of strings, supposes list is null terminated and length is >= 1 
  * @param str : the string to check
@@ -352,39 +422,51 @@ char** list_path_files(char* path){
  * @return the formatted command
  */
 char** format_for_loop_command(char** command, char* var_name, char* file_name){
-    char** new_command = malloc(sizeof(char*) * (len_command(command) + 1));
-    char new_var_name[strlen(var_name) + 2];
-    sprintf(new_var_name, "$%s", var_name);
-    if (new_command == NULL){
-        perror("malloc");
-        return NULL;
-    }
-    int i = 0;
-    for (; i < len_command(command); i++){
-        if (strcmp(command[i], new_var_name) == 0){
-            new_command[i] = strdup(file_name);
-            if (new_command[i] == NULL){
-                perror("strdup");
-                for (int j = 0; new_command[j] != NULL; j++){
-                    free(new_command[j]);
-                }
-                free(new_command);
-                return NULL;
-            }
-        } else {
-            new_command[i] = strdup(command[i]);
-            if (new_command[i] == NULL){
-                perror("strdup");
-                for (int j = 0; new_command[j] != NULL; j++){
-                    free(new_command[j]);
-                    }
-                free(new_command);
-                return NULL;
-            }
+  char** new_command = malloc(sizeof(char*) * (len_command(command) + 1));
+  char new_var_name[strlen(var_name) + 2];
+  sprintf(new_var_name, "$%s", var_name);
+  if (new_command == NULL){
+    perror("malloc");
+    return NULL;
+  }
+  int i = 0;
+  for (; i < len_command(command); i++){
+    // HERE IS THE ERROR -----------------------------------
+    if (strcmp(command[i], new_var_name) == 0){
+      new_command[i] = strdup(file_name);
+      if (new_command[i] == NULL){
+        perror("strdup");
+        for (int j = 0; new_command[j] != NULL; j++){
+          free(new_command[j]);
         }
+        free(new_command);
+        return NULL;
+      }
+    }else if(strstr(command[i], new_var_name)){
+      new_command[i] = str_replace(command[i], new_var_name, file_name);
+      if(new_command[i] == NULL){
+        perror("str_replace error");
+        for (int j = 0; new_command[j] != NULL; j++){
+          free(new_command[j]);
+        }
+        free(new_command);
+        return NULL;
+      }
+    } else {
+      new_command[i] = strdup(command[i]);
+      if (new_command[i] == NULL){
+        perror("strdup");
+        for (int j = 0; new_command[j] != NULL; j++){
+          free(new_command[j]);
+        }
+        free(new_command);
+        return NULL;
+      }
     }
-    new_command[i] = NULL;
-    return new_command;
+    // end of potential error -------------------------------
+  }
+  new_command[i] = NULL;
+  return new_command;
 }
 
 //["for", "F", "in", "words2"], ["{"], ["ftype", "$F"], ["}"]
@@ -442,11 +524,6 @@ int run_for(char*** commands, int i, int last_val){
 }
 
 
-
-
-
-
-// Function to run a single command, handling redirection and internal commands
 /**
  * @brief run a single command
  * @param commands : the list of commands (only required for command_exit())
