@@ -19,7 +19,7 @@
 // list of internal commands
 char* internal_commands[] = {"exit", "pwd", "cd", "ftype", NULL};
 // list of ignored delimiters when it comes to command execution
-char* redirection_delimiters[] = {">", ">>", "<", "<<","|>", "|>>", "2>", "2>>", NULL};
+char* redirection_delimiters[] = {">", ">>", "<", "<<","|>",">|", "|>>", "2>", "2>>", NULL};
 
 int is_fd_valid(int fd) {
   int flags = fcntl(fd, F_GETFD);
@@ -232,7 +232,13 @@ int* handle_redirection(char* delimiter, char* file_name){
   fd[2] = STDERR_FILENO;
   // handle the possible redirection
   if(strcmp(delimiter, ">") == 0){
-    fd[1] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    // check if the file already exists
+    if(access(file_name, F_OK) != -1){
+      write(STDERR_FILENO, "pipeline_run:␣File␣exists", 26);
+      fd[1] = -1;
+    }else{
+      fd[1] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    }
   }else if (strcmp(delimiter, ">>") == 0){
     fd[1] = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0666);
   }else if (strcmp(delimiter, "<") == 0){
@@ -247,6 +253,8 @@ int* handle_redirection(char* delimiter, char* file_name){
     fd[1] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
   }else if(strcmp(delimiter, "|>>") == 0){
     fd[1] = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0666);
+  }else if(strcmp(delimiter, ">|") == 0){
+    fd[1] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
   }else if(strcmp(delimiter, "<>") == 0){
     fd[0] = open(file_name, O_RDWR | O_CREAT | O_TRUNC, 0666);
   } 
@@ -535,6 +543,9 @@ int run_for(char*** commands, int i, int last_val){
  */
 int run_command(char*** commands, char** command, int last_val, int input_fd, int output_fd, int error_fd) {
   // check if the output file descriptor is valid
+  if(output_fd == -1){
+    return 1;
+  }
   if (is_fd_valid(output_fd) == -1) {
     perror("output file descriptor is invalid");
     return 1;

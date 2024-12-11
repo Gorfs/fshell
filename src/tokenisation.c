@@ -5,7 +5,7 @@
 
 
 #define MAX_DELIMITER_SIZE 3
-char* cmd_delimiters[] = {";", "|", "{", "}", ">", ">>", "<", "<<","|>", "|>>", "2>", "2>>", NULL};
+char* cmd_delimiters[] = {";", "|", "{", "}", ">", ">>", "<", "<<","|>", "|>>",">|", "2>", "2>>", NULL};
 int cmd_delimiters_count = 12;
 
 /**
