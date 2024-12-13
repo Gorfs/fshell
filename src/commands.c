@@ -312,18 +312,24 @@ int setup_fileDescriptors(char*** commands, int** fdArray){
     // get the next delimiter
     if(commands[i+1] != NULL){
       next_delimiter = commands[i+1][0];
-    }
-    // if the command is a delimiter, we skip it after setting previous delim for the next iteration
+    }    // if the command is a delimiter, we skip it after setting previous delim for the next iteration
     if(is_delimiter(commands[i][0])){
       previous_delimiter = commands[i][0];
       continue;
     }
     // if the previous delimiter is a redirection, we have skipped an input redirection, this is an edge case
     if(previous_delimiter != NULL && is_redirection_delimiter(previous_delimiter) == 1){
+      cmd_index--;
       int* fd = handle_redirection(previous_delimiter, commands[i][0]);
-      fdArray[cmd_index][2] = fd[2];
-      fdArray[cmd_index][1] = fd[1];
-      fdArray[cmd_index][0] = fd[0];
+      if(fdArray[cmd_index][2] == STDERR_FILENO){
+        fdArray[cmd_index][2] = fd[2];
+      }
+      if(fdArray[cmd_index][0] == STDIN_FILENO){
+        fdArray[cmd_index][0] = fd[0];
+      }
+      if(fdArray[cmd_index][1] == STDOUT_FILENO){
+        fdArray[cmd_index][1] = fd[1];
+      }
     }
     
     // if the next delimiter is a pipe, we make a pipe and set the output of the command to the pipe as well as the input for the next command
@@ -647,7 +653,7 @@ int run_commands(char*** commands, int last_val){
   // setup descriptor array
   int total_cmds = length_of_total_input(commands);
   int** command_fileDescriptors = malloc(sizeof(int*) * (total_cmds + 1));// +1 for the null terminator
-  int cmd_index = -1; // set to -1 to start at 0 on first iteration
+  int cmd_index = 0; 
   command_fileDescriptors[total_cmds] = NULL; // null terminating array
   if(command_fileDescriptors == NULL){
     perror("malloc");
@@ -666,10 +672,8 @@ int run_commands(char*** commands, int last_val){
   
   for (int i = 0; commands[i] != NULL; i++){
     // close previous commands file discriptors
-    cmd_index++;
     // base case
-    if (commands[i][0] == NULL || is_delimiter(commands[i][0]) == 1){
-      cmd_index--;
+    if (commands[i][0] == NULL || is_delimiter(commands[i][0]) == 1 || cmd_index >= total_cmds ){
       continue;
     }else if (strcmp(commands[i][0], "for") == 0){
       last_val = run_for(commands, i, last_val);
@@ -692,11 +696,12 @@ int run_commands(char*** commands, int last_val){
         if(command_fileDescriptors[i][1] != STDOUT_FILENO){
           close(command_fileDescriptors[i][1]);
         }
+        cmd_index++;
       }
     }else{
       // no pipe, so we run the command
-      
       last_val = run_command(commands, commands[i], last_val, command_fileDescriptors[cmd_index][0], command_fileDescriptors[cmd_index][1], command_fileDescriptors[cmd_index][2]);
+      cmd_index++;
       // if the next delimiter is a redirection, we skip the next delimiter, and the file name
       if(commands[i+1] != NULL && is_redirection_delimiter(commands[i+1][0]) == 1){
         i += 2;
