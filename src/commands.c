@@ -179,6 +179,82 @@ int run_for(char*** commands, int i, int last_val){
     
 }
 
+
+int run_if(char*** commands, int i, int last_val) {
+    // Checks if the "if" statement is followed by a block
+    if (strcmp(commands[i+1][0], "{") != 0){
+        perror("if statement must be followed by a block");
+        return 1;
+    }
+
+    // Checks if the "if" statement is closed with a "}"
+    if (strcmp(commands[i+3][0], "}") != 0){
+        perror("if statement must be closed with a }");
+        return 1;
+    }
+
+    // Get the status of the last command
+    int status = last_val;
+
+    // Init a new array to store the condition
+    char ***if_condition = malloc(sizeof(char**) * 2);
+    if (if_condition == NULL) {
+        perror("malloc");
+        return 1;
+    }
+    // Set the condition to the command after the "if" statement
+    if_condition[0] = commands[i] + 1;
+    if_condition[1] = NULL;
+
+    // Run the condition
+    status = run_commands(if_condition, status);
+
+    if (status == 0) { // if the status is 0, then the condition is true
+        // Init a new array to store the block of commands if the condition is true
+        char ***if_then = malloc(sizeof(char**) * 2);
+        if (if_then == NULL) {
+            perror("malloc");
+            return 1;
+        }
+        // Set the condition to the command after the "if" statement
+        if_then[0] = commands[i+2];
+        if_then[1] = NULL;
+        // Run the block of commands if the condition is true
+        status = run_commands(if_then, status);
+
+    } else if (commands[i+4] != NULL && strcmp(commands[i+4][0], "else") == 0) { // if the status is not 0, then the condition is false
+        // Checks if the "else" statement is followed by a block
+        if (strcmp(commands[i+5][0], "{") != 0){
+            perror("else statement must be followed by a block");
+            return 1;
+        }
+
+        // Checks if the "else" statement is closed with a "}"
+        if (strcmp(commands[i+7][0], "}") != 0){
+            perror("else statement must be closed with a }");
+            return 1;
+        }
+
+        // Init a new array to store the block of commands if the condition is false
+        char ***if_else = malloc(sizeof(char**) * 2);
+        if (if_else == NULL) {
+            perror("malloc");
+            return 1;
+        }
+        // Set the else to the command after the "else" statement
+        if_else[0] = commands[i+6];
+        if_else[1] = NULL;
+
+        // Run the block of commands after the "else" statement
+        status = run_commands(if_else, status);
+    } else {
+        status = 0; // if there is no "else" statement, the status is 0
+    }
+
+    return status;
+}
+
+
 int run_command(char*** commands, char** command, int last_val){
     int status = last_val;
     char* command_name = command[0];
@@ -226,13 +302,24 @@ int run_commands(char*** commands, int last_val){
         if (commands[i][0] == NULL){
             continue;
         }
-        else if (strcmp(commands[i][0], "for") == 0){
+        else if (strcmp(commands[i][0], "for") == 0) {
             last_val = run_for(commands, i, last_val);
-            while(commands[i] != NULL && strcmp(commands[i][0], "}") != 0){
+            while (commands[i] != NULL && strcmp(commands[i][0], "}") != 0) {
                 i++;
             }
-        }
-        else{
+        } else if (strcmp(commands[i][0], "if") == 0) {
+            last_val = run_if(commands, i, last_val);
+            while (commands[i] != NULL && strcmp(commands[i][0], "}") != 0) {
+                i++;
+            }
+            // check if there is an else statement
+            if (commands[i + 1] != NULL && strcmp(commands[i + 1][0], "else") == 0) {
+                i++;
+                while (commands[i] != NULL && strcmp(commands[i][0], "}") != 0) {
+                    i++;
+                }
+            }
+        } else {
             last_val = run_command(commands, commands[i], last_val);
         }
     }
