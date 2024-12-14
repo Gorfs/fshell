@@ -22,7 +22,7 @@ int is_internal_command(char* command_name){
     while(command_to_check){
         if (strcmp(command_name, command_to_check) == 0){
             return 1;
-        };
+        }
         command_to_check = internal_commands[i++];
     }
     return 0;
@@ -96,12 +96,13 @@ char** list_path_files(char* path){
 
 char** format_for_loop_command(char** command, char* var_name, char* file_name){
     char** new_command = malloc(sizeof(char*) * (len_command(command) + 1));
-    char new_var_name[strlen(var_name) + 2];
-    sprintf(new_var_name, "$%s", var_name);
     if (new_command == NULL){
         perror("malloc");
         return NULL;
     }
+    char new_var_name[strlen(var_name) + 2];
+    sprintf(new_var_name, "$%s", var_name);
+
     int i = 0;
     for (; i < len_command(command); i++){
         if (strcmp(command[i], new_var_name) == 0){
@@ -158,9 +159,18 @@ int run_for(char*** commands, int i, int last_val){
     int status = last_val;
 
     for (int j = 0; list_of_path_files[j] != NULL; j++){
-        char** formated_command = format_for_loop_command(commands[i+2], var_name, list_of_path_files[j]);
+        char*** tokens = tokenise_cmds(commands[i+2][0]);
+        if (tokens == NULL){
+            perror("error in tokenise_cmds");
+            free(list_of_path_files);
+            return 1;
+        }
+
+        char** formated_command = format_for_loop_command(tokens[0], var_name, list_of_path_files[j]);
         if (formated_command == NULL){
             perror("error in format_for_loop_command");
+            free(list_of_path_files);
+            free(tokens);
             return 1;
         }
         status = run_command(commands, formated_command, status);
@@ -168,6 +178,7 @@ int run_for(char*** commands, int i, int last_val){
             free(formated_command[k]);
         }
         free(formated_command);
+        free(tokens);
     }
 
     for (int j = 0; list_of_path_files[j] != NULL; j++){
@@ -175,8 +186,102 @@ int run_for(char*** commands, int i, int last_val){
     }
     free(list_of_path_files);
     return status;
+}
 
-    
+char*** create_blocks(char*** commands) {
+    int cmd_len = 0; // length of the commands
+    while (commands[cmd_len] != NULL) {
+        cmd_len++;
+    }
+
+    char*** new_commands = malloc(sizeof(char**) * (cmd_len + 1)); // new array to store the commands
+    if (new_commands == NULL) {
+        perror("malloc");
+        return NULL;
+    }
+
+    int new_i = 0; // index for the new array
+    int j = 0; // index for the old array
+    int n = 0; // count then number of open brackets, by adding 1 for each "{" and -1 for each "}"
+
+    while (commands[j] != NULL) {
+        // Adding the current block to the new commands array
+        new_commands[new_i] = commands[j];
+        new_i++;
+
+        if (strcmp(commands[j][0], "{") == 0) { // First open brackets, start of the block
+            int offset = j + 1;
+            char* block = malloc(1 * sizeof(char)); // allocate memory for the block
+            if (block == NULL) {
+                perror("malloc");
+                free(new_commands);
+                return NULL;
+            }
+            block[0] = '\0'; // null terminate the block
+
+            while (commands[offset] != NULL && (strcmp(commands[offset][0], "}") != 0 || n != 0)) {
+                if (strcmp(commands[offset][0], "{") == 0) {
+                    n++;
+                } else if (strcmp(commands[offset][0], "}") == 0) {
+                    n--;
+                }
+
+                // new size of the block
+                size_t new_size = strlen(block) + strlen(commands[offset][0]) + 1; // +1 for the null terminator
+                // reallocate memory for the block
+                char* temp = realloc(block, new_size); // reallocate memory for the block
+                if (temp == NULL) { // error handling
+                    perror("realloc");
+                    free(new_commands);
+                    free(block);
+                    return NULL;
+                }
+                block = temp;
+                strcat(block, commands[offset][0]); // add the token to the block
+
+                for (int k = 1; commands[offset][k] != NULL; k++) { // add the rest of the tokens
+                    new_size = strlen(block) + strlen(commands[offset][k]) + 2; // +2 for the space and the null terminator
+                    temp = realloc(block, new_size); // reallocate memory for the block
+                    if (temp == NULL) { // error handling
+                        perror("realloc");
+                        free(new_commands);
+                        free(block);
+                        return NULL;
+                    }
+                    block = temp;
+
+                    strcat(block, " ");
+                    strcat(block, commands[offset][k]);
+                }
+                offset++;
+            }
+            new_commands[new_i] = malloc(sizeof(char*) * 2); // allocate memory for the block
+            if (new_commands[new_i] == NULL) { // error handling
+                perror("malloc");
+                free(new_commands);
+                free(block);
+                return NULL;
+            }
+            char* temp = malloc(strlen(block) + 1); // allocate memory for the block
+            if (temp == NULL) { // error handling
+                perror("malloc");
+                free(new_commands);
+                free(block);
+                return NULL;
+            }
+            strcpy(temp, block); // copy the block to the new array
+            new_commands[new_i][0] = temp; // add the block as a string to the new array
+            free(block); // free the block
+
+            new_commands[new_i][1] = NULL; // null terminate the block
+            new_i++; // increment the index of the new array
+            j = offset; // skip the block
+        } else {
+            j++;
+        }
+    }
+    new_commands[cmd_len] = NULL; // null terminate the new array
+    return new_commands;
 }
 
 int run_if(char*** commands, int i, int last_val) {
@@ -210,16 +315,7 @@ int run_if(char*** commands, int i, int last_val) {
 
     if (status == 0) { // if the status is 0, then the condition is true
         // Init a new array to store the block of commands if the condition is true
-        char ***if_then = malloc(sizeof(char**) * 2);
-        if (if_then == NULL) {
-            perror("malloc");
-            free(if_condition);
-            return 1;
-        }
-        // Set the condition to the command after the "if" statement
-        if_then[0] = commands[i+2];
-        if_then[1] = NULL;
-        // Run the block of commands if the condition is true
+        char ***if_then = tokenise_cmds(commands[i+2][0]); // Run the block of commands if the condition is true
         status = run_commands(if_then, status);
         free(if_then);
 
@@ -239,16 +335,7 @@ int run_if(char*** commands, int i, int last_val) {
         }
 
         // Init a new array to store the block of commands if the condition is false
-        char ***if_else = malloc(sizeof(char**) * 2);
-        if (if_else == NULL) {
-            perror("malloc");
-            free(if_condition);
-            return 1;
-        }
-        // Set the else to the command after the "else" statement
-        if_else[0] = commands[i+6];
-        if_else[1] = NULL;
-
+        char ***if_else = tokenise_cmds(commands[i+6][0]);
         // Run the block of commands after the "else" statement
         status = run_commands(if_else, status);
         free(if_else);
@@ -305,6 +392,12 @@ int run_commands(char*** commands, int last_val){
     // int stdin_copy = dup(STDIN_FILENO);
     // int stderr_cpy = dup(STDERR_FILENO);
     // int stdout_cpy = dup(STDOUT_FILENO);
+    commands = create_blocks(commands);
+    if (commands == NULL) {
+        perror("error creating blocks");
+        return 1;
+    }
+
     for (int i = 0; commands[i] != NULL; i++){
         if (commands[i][0] == NULL){
             continue;
