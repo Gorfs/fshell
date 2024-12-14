@@ -179,7 +179,6 @@ int run_for(char*** commands, int i, int last_val){
     
 }
 
-
 int run_if(char*** commands, int i, int last_val) {
     // Checks if the "if" statement is followed by a block
     if (strcmp(commands[i+1][0], "{") != 0){
@@ -214,6 +213,7 @@ int run_if(char*** commands, int i, int last_val) {
         char ***if_then = malloc(sizeof(char**) * 2);
         if (if_then == NULL) {
             perror("malloc");
+            free(if_condition);
             return 1;
         }
         // Set the condition to the command after the "if" statement
@@ -221,17 +221,20 @@ int run_if(char*** commands, int i, int last_val) {
         if_then[1] = NULL;
         // Run the block of commands if the condition is true
         status = run_commands(if_then, status);
+        free(if_then);
 
     } else if (commands[i+4] != NULL && strcmp(commands[i+4][0], "else") == 0) { // if the status is not 0, then the condition is false
         // Checks if the "else" statement is followed by a block
         if (strcmp(commands[i+5][0], "{") != 0){
             perror("else statement must be followed by a block");
+            free(if_condition);
             return 1;
         }
 
         // Checks if the "else" statement is closed with a "}"
         if (strcmp(commands[i+7][0], "}") != 0){
             perror("else statement must be closed with a }");
+            free(if_condition);
             return 1;
         }
 
@@ -239,6 +242,7 @@ int run_if(char*** commands, int i, int last_val) {
         char ***if_else = malloc(sizeof(char**) * 2);
         if (if_else == NULL) {
             perror("malloc");
+            free(if_condition);
             return 1;
         }
         // Set the else to the command after the "else" statement
@@ -247,9 +251,12 @@ int run_if(char*** commands, int i, int last_val) {
 
         // Run the block of commands after the "else" statement
         status = run_commands(if_else, status);
+        free(if_else);
     } else {
         status = 0; // if there is no "else" statement, the status is 0
     }
+
+    free(if_condition);
 
     return status;
 }
