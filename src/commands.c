@@ -1,19 +1,20 @@
 #include <stdlib.h>
 #include <tokenisation.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <commands.h>
 #include <unistd.h>
 #include <string.h>
 #include <exit.h>
 #include <pwd.h>
 #include <ftype.h>
-#include <cd.h>
-// temporary to use printf for debugging
+#include <cd.h> // temporary to use printf for debugging
 #include <stdio.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <dirent.h>
 
 
 // list of internal commands
@@ -35,28 +36,6 @@ void print_file_descriptors(int** fdArray){
   for(int i = 0 ; fdArray[i] != NULL; i++){
     printf("fdArray[%d] = [%d, %d, %d]\n", i, fdArray[i][0], fdArray[i][1], fdArray[i][2]);
   }
-}
-
-
-/**
- * @brief reconnect stdin to the terminal
- * @return 0 if successful, -1 otherwise
- */
-int reconnect_stdin_to_terminal() {
-    int tty_fd = open("/dev/tty", O_RDWR);
-    if (tty_fd == -1) {
-        perror("open(/dev/tty)");
-        return -1;
-    }
-
-    if (dup2(tty_fd, STDIN_FILENO) == -1) {
-        perror("dup2(tty_fd, STDIN_FILENO)");
-        close(tty_fd);
-        return -1;
-    }
-
-    close(tty_fd);
-    return 0;
 }
 
 
@@ -191,6 +170,41 @@ int length_of_total_input(char*** commands){
 }
 
 
+/**
+ * @brief takes a file path, creats all directories in the path, then returns the file descriptor for the file
+ * @param path : the path of the file
+ * @return the file descriptor of the file, -1 if an error occured
+ */
+int create_directory_file(char* path){
+  char* path_copy = strdup(path);
+  if(path_copy == NULL){
+    perror("strdup");
+    return -1;
+  }
+  char* token = strtok(path_copy, "/");
+  char* token2 = strtok(NULL, "/");
+  char* current_path = malloc(sizeof(char) * strlen(path) + 1);
+  while(token2 != NULL){
+    // check if directory exists
+    if(access(current_path, F_OK) == -1){
+      // doesn't exist
+      // create directory
+      if(mkdir(current_path, 0777) == -1){
+        perror("mkdir");
+        return -1;
+      }
+    }
+    // the directory now exists, we can move on to the next one
+    current_path = strcat(current_path, "/");
+    current_path = strcat(current_path, token);
+    token = token2;
+    token2 = strtok(NULL, "/");
+  }
+  // create the file
+  int fd = open(path_copy, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+  return fd;
+}
+
 /** 
  * @brief returns input and output file descriptors depending on delmiter
  * @param delmiter : string of the delimiter
@@ -234,10 +248,10 @@ int* handle_redirection(char* delimiter, char* file_name){
   if(strcmp(delimiter, ">") == 0){
     // check if the file already exists
     if(access(file_name, F_OK) != -1){
-      write(STDERR_FILENO, "pipeline_run:␣File␣exists", 26);
+      write(STDERR_FILENO, "pipeline_run:␣File␣exists\n", 30);
       fd[1] = -1;
     }else{
-      fd[1] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+      fd[1] = create_directory_file(file_name);
     }
   }else if (strcmp(delimiter, ">>") == 0){
     fd[1] = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0666);
@@ -248,10 +262,10 @@ int* handle_redirection(char* delimiter, char* file_name){
       write(STDERR_FILENO, "pipeline_run:␣File␣exists", 26);
       fd[2] = -1;
     }else{
-      fd[2] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+      fd[2] = create_directory_file(file_name);
     }
   }else if(strcmp(delimiter, "2>|") == 0){
-    fd[2] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    fd[2] = create_directory_file(file_name);
   }else if (strcmp(delimiter, "2>>") == 0){
     fd[2] = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0666);
   }else if(strcmp(delimiter, "<&") == 0){
@@ -261,9 +275,11 @@ int* handle_redirection(char* delimiter, char* file_name){
   }else if(strcmp(delimiter, "|>>") == 0){
     fd[1] = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0666);
   }else if(strcmp(delimiter, ">|") == 0){
-    fd[1] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    fd[1] = create_directory_file(file_name);
   }else if(strcmp(delimiter, "<>") == 0){
+    // pretty sure this one is not an actual redirection
     fd[0] = open(file_name, O_RDWR | O_CREAT | O_TRUNC, 0666);
+
   } 
   return fd;
 }
@@ -734,6 +750,5 @@ int run_commands(char*** commands, int last_val){
   dup2(dup_stdout, STDOUT_FILENO);
   dup2(dup_stderr, STDERR_FILENO);
   
-  reconnect_stdin_to_terminal(); // used to reconnect stdin to the terminal after pipes
   return last_val;
 }

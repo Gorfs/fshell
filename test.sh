@@ -39,5 +39,5 @@ fi
 if ! cd "$AUTOTEST_DIR"; then
   exit 1
 fi
-
+cp ./autotests.sh ../autotests.sh.bak
 exec bash ./autotests.sh
