@@ -178,7 +178,7 @@ int run_for(char*** commands, int i, int last_val){
             free(formated_command[k]);
         }
         free(formated_command);
-        free(tokens);
+        free_tokens(tokens);
     }
 
     for (int j = 0; list_of_path_files[j] != NULL; j++){
@@ -318,7 +318,7 @@ int run_if(char*** commands, int i, int last_val) {
         // Init a new array to store the block of commands if the condition is true
         char ***if_then = tokenise_cmds(commands[i+2][0]); // Run the block of commands if the condition is true
         status = run_commands(if_then, status);
-        free(if_then);
+        free_tokens(if_then);
 
     } else if (commands[i+4] != NULL && strcmp(commands[i+4][0], "else") == 0) { // if the status is not 0, then the condition is false
         // Checks if the "else" statement is followed by a block
