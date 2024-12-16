@@ -267,15 +267,16 @@ char*** create_blocks(char*** commands) {
                 perror("malloc");
                 free(new_commands);
                 free(block);
+                free(temp);
                 return NULL;
             }
             strcpy(temp, block); // copy the block to the new array
             new_commands[new_i][0] = temp; // add the block as a string to the new array
-            free(block); // free the block
 
             new_commands[new_i][1] = NULL; // null terminate the block
             new_i++; // increment the index of the new array
             j = offset; // skip the block
+            free(block); // free the block
         } else {
             j++;
         }
@@ -392,7 +393,6 @@ int run_commands(char*** commands, int last_val){
     // int stdin_copy = dup(STDIN_FILENO);
     // int stderr_cpy = dup(STDERR_FILENO);
     // int stdout_cpy = dup(STDOUT_FILENO);
-    commands = create_blocks(commands);
     if (commands == NULL) {
         perror("error creating blocks");
         return 1;

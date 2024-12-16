@@ -178,7 +178,7 @@ char*** tokenise_cmds(char* input){
         return NULL;
     }
     int cmd_index = 0;
-
+    char* last_delimiter = NULL;
     while(*input == ' '){
         input++; // skip leading spaces
     }
@@ -227,6 +227,7 @@ char*** tokenise_cmds(char* input){
                 goto error;
             }
             result[cmd_index][0] = delimiter;
+            last_delimiter = delimiter;
             result[cmd_index][1] = NULL;
             cmd_index++;
             input += delimiter_length;
@@ -240,15 +241,26 @@ char*** tokenise_cmds(char* input){
             }
             strncpy(string_to_tokenise, input, c_pointer);
             string_to_tokenise[c_pointer] = '\0';
-
-            result[cmd_index] = tokenise_cmd(string_to_tokenise);
-            if(result[cmd_index] == NULL){
-                perror("erreur d'allocation de mémoire");
+            if (last_delimiter != NULL && strcmp(last_delimiter, "{") == 0){
+                result[cmd_index] = malloc(2 * sizeof(char*));
+                if(result[cmd_index] == NULL){
+                    perror("erreur d'allocation de mémoire");
+                    free(string_to_tokenise);
+                    goto error;
+                }
+                result[cmd_index][0] = string_to_tokenise;
+                result[cmd_index][1] = NULL;
+            }
+            else{
+                result[cmd_index] = tokenise_cmd(string_to_tokenise);
+                if(result[cmd_index] == NULL){
+                    perror("erreur d'allocation de mémoire");
+                    free(string_to_tokenise);
+                    goto error;
+                }
                 free(string_to_tokenise);
-                goto error;
             }
             cmd_index++;
-            free(string_to_tokenise);
             input += c_pointer;
         }
     }
