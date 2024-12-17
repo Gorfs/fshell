@@ -198,6 +198,7 @@ char*** tokenise_cmds(char* input){
         return NULL;
     }
     int cmd_index = 0;
+    int number_of_open_brackets = 0;
     char* last_delimiter = NULL;
     while(*input == ' '){
         input++; // skip leading spaces
@@ -255,6 +256,12 @@ char*** tokenise_cmds(char* input){
             }
             result[cmd_index][0] = delimiter;
             last_delimiter = delimiter;
+            if (last_delimiter != NULL && strcmp(last_delimiter, "{")){
+                number_of_open_brackets++;
+            }
+            else if (last_delimiter != NULL && strcmp(last_delimiter, "}")){
+                number_of_open_brackets--;
+            }
             result[cmd_index][1] = NULL;
             cmd_index++;
             input += delimiter_length;
@@ -290,11 +297,18 @@ char*** tokenise_cmds(char* input){
             }
             cmd_index++;
             input += c_pointer;
+            while(*input == ' '){
+                input++; // skip trailing spaces
+            }
         }
     }
     result[cmd_index] = NULL; // null terminate the array
-
-    return result;
+    if (number_of_open_brackets == 0){
+        return result;
+    }
+    else{
+        goto error;
+    }
 
     error:
         for (int i = 0; i < cmd_index; i++) {
