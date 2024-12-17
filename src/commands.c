@@ -202,6 +202,8 @@ int create_directory_file(char* path){
     token2 = strtok(NULL, "/");
   }
   //int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+  free(path_copy);
+  free(current_path);
   return 0;
 }
 
@@ -291,15 +293,22 @@ int* handle_redirection(char* delimiter, char* file_name){
   }else if(strcmp(delimiter, "<>") == 0){
     // pretty sure this one is not an actual redirection
     fd[0] = open(file_name, O_RDWR | O_CREAT | O_TRUNC, 0666);
-
   } 
+  if(fd[0] == -1 || fd[1] == -1 || fd[2] == -1){
+    perror("open");
+    goto error;
+  }
   return fd;
+
+ error:
+  free(fd);
+  return NULL;
 }
 
 /**
  * @brief initializes an array of file descriptors to stdin and stdout
  * @param fdArray : the array of filedescriptors, null terminated
- * @return void
+ * @return 0 if  successful, -1 otherwise
  */
 int init_file_descriptors(int** fdArray, int length){
   if (fdArray == NULL){
@@ -320,8 +329,7 @@ error:
   for(int j = 0 ; fdArray[j]!= NULL; j++){
     free(fdArray[j]);
   }
-  free(fdArray);
-  return 1;
+  return -1;
 }
 
 
@@ -349,6 +357,9 @@ int setup_fileDescriptors(char*** commands, int** fdArray){
     if(previous_delimiter != NULL && is_redirection_delimiter(previous_delimiter) == 1){
       cmd_index--;
       int* fd = handle_redirection(previous_delimiter, commands[i][0]);
+      if(fd == NULL){ // error handeling
+        return -1;
+      }
       if(fdArray[cmd_index][2] == STDERR_FILENO){
         fdArray[cmd_index][2] = fd[2];
       }
@@ -358,6 +369,7 @@ int setup_fileDescriptors(char*** commands, int** fdArray){
       if(fdArray[cmd_index][1] == STDOUT_FILENO){
         fdArray[cmd_index][1] = fd[1];
       }
+      free(fd);// free the pointer to the fd
     }
     
     // if the next delimiter is a pipe, we make a pipe and set the output of the command to the pipe as well as the input for the next command
@@ -383,7 +395,7 @@ int setup_fileDescriptors(char*** commands, int** fdArray){
       if(fdArray[cmd_index][1] == STDOUT_FILENO){
         fdArray[cmd_index][1] = fd[1];
       }
-
+      free(fd);// free the pointer 
       // skip the next delimiter and the file name
       cmd_index++;
       i += 2;
@@ -731,6 +743,9 @@ int run_commands(char*** commands, int last_val){
         if(command_fileDescriptors[i][1] != STDOUT_FILENO){
           close(command_fileDescriptors[i][1]);
         }
+        if(command_fileDescriptors[i][2] != STDERR_FILENO){
+          close(command_fileDescriptors[i][2]);
+        }
         cmd_index++;
       }
     }else{
@@ -746,20 +761,15 @@ int run_commands(char*** commands, int last_val){
         i++; 
       }
     }
-
-
   }
 
   // clean up potential pipes
-  for(int i = 0 ; i < total_cmds; i++){
-    if(command_fileDescriptors[i][0] != STDIN_FILENO){
-      close(command_fileDescriptors[i][0]);
-    }
-    if(command_fileDescriptors[i][1] != STDOUT_FILENO){
-      close(command_fileDescriptors[i][1]);
-    }
-    if(command_fileDescriptors[i][2] != STDERR_FILENO){
-      close(command_fileDescriptors[i][2]);
+  
+  for (int i = 0; command_fileDescriptors[i] != NULL; i++) {
+    for (int j = 0; j < 3; j++) {
+      if (command_fileDescriptors[i][j] != STDIN_FILENO && command_fileDescriptors[i][j] != STDOUT_FILENO && command_fileDescriptors[i][j] != STDERR_FILENO) {
+        close(command_fileDescriptors[i][j]);
+      }
     }
     free(command_fileDescriptors[i]);
   }
