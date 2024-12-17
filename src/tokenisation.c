@@ -129,6 +129,26 @@ int earlist_delimiter(char* input){
     return min_index;
 }
 
+int earliest_unmatched_closing_bracket(char* input) {
+    int number_of_open_brackets = 0;
+    int index = 0;
+    for (size_t i = 0; i < strlen(input); i++){
+        if (input[i] == '{'){
+            number_of_open_brackets++;
+        }
+        else if (input[i] == '}'){
+            if (number_of_open_brackets == 0){
+                return index;
+            }
+            else{
+                number_of_open_brackets--;
+            }
+        }
+        index++;
+    }
+    return -1; // No unmatched closing bracket found
+}
+
 /**
  * @brief fonction qui retourne la longueur du premier délimiteur trouvé dans le string d'input
  * @param input : le string d'input
@@ -196,8 +216,12 @@ char*** tokenise_cmds(char* input){
             perror("erreur de réallocation de mémoire");
             goto error;
         }
-
-        c_pointer = earlist_delimiter(input);
+        if (last_delimiter != NULL && strcmp(last_delimiter, "{") == 0){
+            c_pointer = earliest_unmatched_closing_bracket(input);
+        }
+        else{
+            c_pointer = earlist_delimiter(input);
+        }
         if(c_pointer == -1){
             //Plus de délimitations, on continue sur la suite de l'input
             result[cmd_index] = tokenise_cmd(input);
@@ -250,6 +274,7 @@ char*** tokenise_cmds(char* input){
                 }
                 result[cmd_index][0] = string_to_tokenise;
                 result[cmd_index][1] = NULL;
+                last_delimiter = NULL;
             }
             else{
                 result[cmd_index] = tokenise_cmd(string_to_tokenise);
