@@ -374,9 +374,16 @@ int setup_fileDescriptors(char*** commands, int** fdArray){
       if(fd == NULL){
         return -1;
       }
-      fdArray[cmd_index][1] = fd[1];
-      fdArray[cmd_index][0] = fd[0];
-      fdArray[cmd_index][2] = fd[2];
+      if(fdArray[cmd_index][2] == STDERR_FILENO){
+        fdArray[cmd_index][2] = fd[2];
+      }
+      if(fdArray[cmd_index][0] == STDIN_FILENO){
+        fdArray[cmd_index][0] = fd[0];
+      }
+      if(fdArray[cmd_index][1] == STDOUT_FILENO){
+        fdArray[cmd_index][1] = fd[1];
+      }
+
       // skip the next delimiter and the file name
       cmd_index++;
       i += 2;
