@@ -94,41 +94,48 @@ char** list_path_files(char* path){
     return files;
 }
 
-char** format_for_loop_command(char** command, char* var_name, char* file_name){
-    char** new_command = malloc(sizeof(char*) * (len_command(command) + 1));
-    if (new_command == NULL){
-        perror("malloc");
-        return NULL;
+int replace_var_name_to_file_name(char*** commands, char* var_name, char* file_name) {
+    if (!commands || !var_name || !file_name) {
+        return 1; // Invalid input
     }
-    char new_var_name[strlen(var_name) + 2];
-    sprintf(new_var_name, "$%s", var_name);
 
-    int i = 0;
-    for (; i < len_command(command); i++){
-        if (strcmp(command[i], new_var_name) == 0){
-            new_command[i] = strdup(file_name);
-            if (new_command[i] == NULL){
-                perror("strdup");
-                for (int j = 0; new_command[j] != NULL; j++){
-                    free(new_command[j]);
+    for (int i = 0; commands[i]; i++) {
+        for (int j = 0; commands[i][j]; j++) {
+            char* str = commands[i][j];
+            size_t var_len = strlen(var_name);
+            size_t str_len = strlen(str);
+            char* pos = str;
+            
+            while ((pos = strstr(pos, var_name)) != NULL) {
+                size_t pos_index = pos - str;
+                size_t new_len = str_len - var_len + strlen(file_name) + 1;
+                char* new_str = malloc(new_len);
+
+                if (!new_str) {
+                    return 1; // Memory allocation failed
                 }
-                free(new_command);
-                return NULL;
-            }
-        } else {
-            new_command[i] = strdup(command[i]);
-            if (new_command[i] == NULL){
-                perror("strdup");
-                for (int j = 0; new_command[j] != NULL; j++){
-                    free(new_command[j]);
-                    }
-                free(new_command);
-                return NULL;
+
+                // Copy part before var_name
+                strncpy(new_str, str, pos_index);
+                new_str[pos_index] = '\0';
+
+                // Append file_name and remaining part of the string
+                strcat(new_str, file_name);
+                strcat(new_str, pos + var_len);
+
+                // Free old string and update to new string
+                free(commands[i][j]);
+                commands[i][j] = new_str;
+
+                // Update string information for next search
+                str_len = new_len - 1;
+                str = new_str;
+                pos = str + pos_index + strlen(file_name);
             }
         }
     }
-    new_command[i] = NULL;
-    return new_command;
+
+    return 0; // Success
 }
 
 //["for", "F", "in", "words2"], ["{"], ["ftype", "$F"], ["}"]
@@ -138,6 +145,11 @@ int run_for(char*** commands, int i, int last_val){
         return 1;
     }
     char* var_name = commands[i][1];
+    char* final_var_name = malloc(strlen(var_name) + 2);
+    if (final_var_name){
+        strcpy(final_var_name, "$");
+        strcat(final_var_name, var_name);
+    }
     char* rep_path_name = commands[i][3];
 
     if (strcmp(commands[i+1][0], "{") != 0){
@@ -165,19 +177,14 @@ int run_for(char*** commands, int i, int last_val){
             free(list_of_path_files);
             return 1;
         }
-
-        char** formated_command = format_for_loop_command(tokens[0], var_name, list_of_path_files[j]);
-        if (formated_command == NULL){
-            perror("error in format_for_loop_command");
+        int success = replace_var_name_to_file_name(tokens, final_var_name, list_of_path_files[j]);
+        if (success != 0){
+            perror("error in replace_var_name_to_file_name");
             free(list_of_path_files);
             free(tokens);
             return 1;
         }
-        status = run_command(commands, formated_command, status);
-        for (int k = 0; formated_command[k] != NULL; k++){
-            free(formated_command[k]);
-        }
-        free(formated_command);
+        status = run_commands(tokens, status);
         free_tokens(tokens);
     }
 
@@ -185,6 +192,7 @@ int run_for(char*** commands, int i, int last_val){
         free(list_of_path_files[j]);
     }
     free(list_of_path_files);
+    free(final_var_name);
     return status;
 }
 
@@ -345,7 +353,6 @@ int run_if(char*** commands, int i, int last_val) {
     }
 
     free(if_condition);
-
     return status;
 }
 
