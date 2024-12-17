@@ -211,6 +211,9 @@ char*** tokenise_cmds(char* input){
         while(input[0] == ' '){
             input++; // skip leading spaces
         }
+        if (!*input){
+            break;
+        }
         result = realloc(result, (cmd_index + 2) * sizeof(char**));
         if (result == NULL) {
             perror("erreur de réallocation de mémoire");

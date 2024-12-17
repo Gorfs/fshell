@@ -339,7 +339,7 @@ int run_if(char*** commands, int i, int last_val) {
         char ***if_else = tokenise_cmds(commands[i+6][0]);
         // Run the block of commands after the "else" statement
         status = run_commands(if_else, status);
-        free(if_else);
+        free_tokens(if_else);
     } else {
         status = 0; // if there is no "else" statement, the status is 0
     }
