@@ -171,9 +171,9 @@ int length_of_total_input(char*** commands){
 
 
 /**
- * @brief takes a file path, creats all directories in the path, then returns the file descriptor for the file
+ * @brief takes a file path, creates all directories in the path.
  * @param path : the path of the file
- * @return the file descriptor of the file, -1 if an error occured
+ * @return 0 if successful, -1 if an error occured
  */
 int create_directory_file(char* path){
   char* path_copy = strdup(path);
@@ -184,6 +184,7 @@ int create_directory_file(char* path){
   char* token = strtok(path_copy, "/");
   char* token2 = strtok(NULL, "/");
   char* current_path = malloc(sizeof(char) * strlen(path) + 1);
+  strcpy(current_path, token);
   while(token2 != NULL){
     // check if directory exists
     if(access(current_path, F_OK) == -1){
@@ -196,13 +197,12 @@ int create_directory_file(char* path){
     }
     // the directory now exists, we can move on to the next one
     current_path = strcat(current_path, "/");
-    current_path = strcat(current_path, token);
+    current_path = strcat(current_path, token2);
     token = token2;
     token2 = strtok(NULL, "/");
   }
-  // create the file
-  int fd = open(path_copy, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-  return fd;
+  //int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+  return 0;
 }
 
 /** 
@@ -251,7 +251,10 @@ int* handle_redirection(char* delimiter, char* file_name){
       write(STDERR_FILENO, "pipeline_run:␣File␣exists\n", 30);
       fd[1] = -1;
     }else{
-      fd[1] = create_directory_file(file_name);
+      if(create_directory_file(file_name) == -1){
+        return NULL;
+      }
+      fd[1] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     }
   }else if (strcmp(delimiter, ">>") == 0){
     fd[1] = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0666);
@@ -262,10 +265,16 @@ int* handle_redirection(char* delimiter, char* file_name){
       write(STDERR_FILENO, "pipeline_run:␣File␣exists", 26);
       fd[2] = -1;
     }else{
-      fd[2] = create_directory_file(file_name);
+      if(create_directory_file(file_name) == -1){
+        return NULL;
+      }
+      fd[2] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     }
   }else if(strcmp(delimiter, "2>|") == 0){
-    fd[2] = create_directory_file(file_name);
+    if(create_directory_file(file_name) == -1){
+      return NULL;
+    }
+    fd[2] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
   }else if (strcmp(delimiter, "2>>") == 0){
     fd[2] = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0666);
   }else if(strcmp(delimiter, "<&") == 0){
@@ -275,7 +284,10 @@ int* handle_redirection(char* delimiter, char* file_name){
   }else if(strcmp(delimiter, "|>>") == 0){
     fd[1] = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0666);
   }else if(strcmp(delimiter, ">|") == 0){
-    fd[1] = create_directory_file(file_name);
+    if(create_directory_file(file_name) == -1){
+      return NULL;
+    }
+    fd[1] = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
   }else if(strcmp(delimiter, "<>") == 0){
     // pretty sure this one is not an actual redirection
     fd[0] = open(file_name, O_RDWR | O_CREAT | O_TRUNC, 0666);
