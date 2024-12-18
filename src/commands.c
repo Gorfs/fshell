@@ -49,7 +49,7 @@ char** list_path_files(char* path){
     }
 
     while((entry = readdir(dir)) != NULL){
-        if (entry->d_name[0] != '.' && entry->d_type == DT_REG){ // Skip hidden files
+        if (entry->d_name[0] != '.'){ // Skip hidden files
             size++;
         }
     }
@@ -73,7 +73,7 @@ char** list_path_files(char* path){
 
     int index = 0;
     while((entry = readdir(dir)) != NULL){
-        if (entry->d_name[0] != '.' && entry->d_type == DT_REG){ // Skip hidden files
+        if (entry->d_name[0] != '.'){ // Skip hidden files
             
             files[index] = malloc(strlen(path) + strlen(entry->d_name) + 2);
             if (files[index] == NULL){

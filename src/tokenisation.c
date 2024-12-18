@@ -247,7 +247,7 @@ char*** tokenise_cmds(char* input){
             }
             strncpy(delimiter, input, delimiter_length);
             delimiter[delimiter_length] = '\0';
-            
+
             result[cmd_index] = malloc(2 * sizeof(char*));
             if(result[cmd_index] == NULL){
                 perror("erreur d'allocation de mémoire");
@@ -256,10 +256,10 @@ char*** tokenise_cmds(char* input){
             }
             result[cmd_index][0] = delimiter;
             last_delimiter = delimiter;
-            if (last_delimiter != NULL && strcmp(last_delimiter, "{")){
+            if (strcmp(last_delimiter, "{") == 0){
                 number_of_open_brackets++;
             }
-            else if (last_delimiter != NULL && strcmp(last_delimiter, "}")){
+            else if (strcmp(last_delimiter, "}") == 0){
                 number_of_open_brackets--;
             }
             result[cmd_index][1] = NULL;
