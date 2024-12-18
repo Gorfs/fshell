@@ -2,3 +2,5 @@
 /.vscode/
 .sy5-2024-2025-projet-fsh-autotests.nosync
 fsh
+.cache
+compile_commands.json

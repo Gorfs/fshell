@@ -8,19 +8,19 @@ int command_ftype(char** command){
     struct stat st;
     if(lstat(command[1], &st) == 0){
         if(S_ISLNK(st.st_mode)){
-            write(1, "symbolic link\n", 14);
+            write(STDOUT_FILENO, "symbolic link\n", 14);
         }
         else if(S_ISDIR(st.st_mode)){
-            write(1, "directory\n", 10);
+            write(STDOUT_FILENO, "directory\n", 10);
         }
         else if(S_ISREG(st.st_mode)){
-            write(1, "regular file\n", 13);
+            write(STDOUT_FILENO, "regular file\n", 13);
         }
         else if(S_ISFIFO(st.st_mode)){
-            write(1, "named pipe\n", 11);
+            write(STDOUT_FILENO, "named pipe\n", 11);
         }
         else{
-            write(1, "other\n", 6);
+            write(STDOUT_FILENO, "other\n", 6);
         }
     }
     else{

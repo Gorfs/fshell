@@ -10,6 +10,9 @@
 #include <readline/readline.h>
 #include <readline/history.h> 
 #include <cd.h>
+#include <fcntl.h>
+
+
 
 int main(){
   int last_val = 0; // value of the last command executed
@@ -33,6 +36,7 @@ int main(){
       return 1;
     }
     rl_outstream = stderr;
+
     char* input = readline(prompt);
     if (input == NULL){
       free(prompt);
@@ -41,6 +45,7 @@ int main(){
     add_history(input);
     // tokenise the input
     char*** tokens = tokenise_cmds(input);
+
     if (input != NULL){
       free(input);
     }
