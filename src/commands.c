@@ -437,37 +437,30 @@ int len_command(char** command){
  * @param path : the path of the directory
  * @return a list of strings containing the path of the files in the directory
  */
-char** list_path_files(char* path, int hidden_files, int recursive, char* extension, char type) {
+int count_files_recursive(char* path, int hidden_files, int recursive, char* extension, char type) {
     DIR *dir;
     struct dirent *entry;
-    char** files = NULL;
-    int size = 0;
+    int count = 0;
 
     dir = opendir(path);
     if (dir == NULL) {
         perror("opendir");
-        return NULL;
+        return 0;
     }
 
     while ((entry = readdir(dir)) != NULL) {
         if ((entry->d_name[0] != '.' || (hidden_files == 1 && entry->d_name[0] == '.')) && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
-            // Estimate the required buffer size
             int path_len = strlen(path);
             int name_len = strlen(entry->d_name);
-            int full_path_len = path_len + 1 + name_len + 1; // +1 for '/' and +1 for '\0'
+            int full_path_len = path_len + 1 + name_len + 1;
 
             char *full_path = malloc(full_path_len);
             if (full_path == NULL) {
                 perror("malloc");
                 closedir(dir);
-                for (int i = 0; files != NULL && files[i] != NULL; i++) {
-                    free(files[i]);
-                }
-                free(files);
-                return NULL;
+                return count;
             }
 
-            // Use snprintf to format the string
             snprintf(full_path, full_path_len, "%s/%s", path, entry->d_name);
 
             struct stat st;
@@ -487,65 +480,69 @@ char** list_path_files(char* path, int hidden_files, int recursive, char* extens
                         include = S_ISFIFO(st.st_mode);
                         break;
                     default:
-                        include = 1; // No specific type filtering
+                        include = 1;
                         break;
                 }
 
                 if (include && extension != NULL && S_ISREG(st.st_mode)) {
-                  char* dot = strrchr(entry->d_name, '.');
-                  if (dot == NULL || strcmp(dot + 1, extension) != 0) {
-                      include = 0;
-                  }
-                }
-
-                if (extension != NULL && S_ISDIR(st.st_mode)){
-                  include = 0;
+                    char* dot = strrchr(entry->d_name, '.');
+                    if (dot == NULL || strcmp(dot + 1, extension) != 0) {
+                        include = 0;
+                    }
                 }
 
                 if (include) {
-                    size++;
+                    if (S_ISDIR(st.st_mode) && recursive) {
+                        count += count_files_recursive(full_path, hidden_files, recursive, extension, type);
+                    }
+                    if (extension == NULL || (extension != NULL && !S_ISDIR(st.st_mode))){
+                      count++;
+                    }
                 }
             }
             free(full_path);
         }
     }
     closedir(dir);
-    files = malloc(sizeof(char*) * (size + 1));
+    return count;
+}
+
+char** list_path_files(char* path, int hidden_files, int recursive, char* extension, char type) {
+    int size = count_files_recursive(path, hidden_files, recursive, extension, type);
+    char** files = malloc(sizeof(char*) * (size + 1));
     if (files == NULL) {
         perror("malloc");
         return NULL;
     }
 
+    DIR *dir;
+    struct dirent *entry;
+    int index = 0;
+
     dir = opendir(path);
     if (dir == NULL) {
         perror("opendir");
-        for (int i = 0; files != NULL && files[i] != NULL; i++) {
-            free(files[i]);
-        }
         free(files);
         return NULL;
     }
 
-    int index = 0;
     while ((entry = readdir(dir)) != NULL) {
         if ((entry->d_name[0] != '.' || (hidden_files == 1 && entry->d_name[0] == '.')) && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
-            // Estimate the required buffer size
             int path_len = strlen(path);
             int name_len = strlen(entry->d_name);
-            int full_path_len = path_len + 1 + name_len + 1; // +1 for '/' and +1 for '\0'
+            int full_path_len = path_len + 1 + name_len + 1;
 
             char *full_path = malloc(full_path_len);
             if (full_path == NULL) {
                 perror("malloc");
                 closedir(dir);
-                for (int i = 0; files != NULL && files[i] != NULL; i++) {
+                for (int i = 0; i < index; i++) {
                     free(files[i]);
                 }
                 free(files);
                 return NULL;
             }
 
-            // Use snprintf to format the string
             snprintf(full_path, full_path_len, "%s/%s", path, entry->d_name);
 
             struct stat st;
@@ -565,45 +562,69 @@ char** list_path_files(char* path, int hidden_files, int recursive, char* extens
                         include = S_ISFIFO(st.st_mode);
                         break;
                     default:
-                        include = 1; // No specific type filtering
+                        include = 1;
                         break;
                 }
 
                 if (include && extension != NULL && S_ISREG(st.st_mode)) {
-                  char* dot = strrchr(entry->d_name, '.');
-                  if (dot == NULL || strcmp(dot + 1, extension) != 0) {
-                      include = 0;
-                  }
+                    char* dot = strrchr(entry->d_name, '.');
+                    if (dot == NULL || strcmp(dot + 1, extension) != 0) {
+                        include = 0;
+                    }
                 }
 
                 if (include) {
                     if (S_ISDIR(st.st_mode) && recursive) {
+                      if (extension != NULL){
+                        files[index] = strdup(full_path);
+                        if (files[index] == NULL) {
+                            perror("strdup");
+                            closedir(dir);
+                            for (int j = 0; j < index; j++) {
+                                free(files[j]);
+                            }
+                            free(files);
+                            return NULL;
+                        }
+                        index++;
+                      }
                         char** sub_files = list_path_files(full_path, hidden_files, recursive, extension, type);
                         if (sub_files != NULL) {
                             for (int i = 0; sub_files[i] != NULL; i++, index++) {
-                                files[index] = sub_files[i];
+                                files[index] = strdup(sub_files[i]);
+                                if (files[index] == NULL) {
+                                    perror("strdup");
+                                    closedir(dir);
+                                    for (int j = 0; j < index; j++) {
+                                        free(files[j]);
+                                    }
+                                    free(files);
+                                    free(sub_files);
+                                    return NULL;
+                                }
+                                free(sub_files[i]);
                             }
                             free(sub_files);
                         }
                     } else {
-                        if (extension == NULL || (extension != NULL && !S_ISDIR(st.st_mode))){
-                          files[index] = strdup(full_path);
-                          if (files[index] == NULL) {
-                              perror("strdup");
-                              closedir(dir);
-                              for (int i = 0; files != NULL && files[i] != NULL; i++) {
-                                  free(files[i]);
-                              }
-                              free(files);
-                              return NULL;
-                          }
-                          char *filename = files[index];
-                          char *dot = strrchr(filename, '.');
-                          if (dot != NULL && dot != filename && *(dot - 1) != '/') {
-                              *dot = '\0';
-                          }
-                          index++;
+                      if (extension == NULL || (extension != NULL && !S_ISDIR(st.st_mode))){
+                        files[index] = strdup(full_path);
+                        if (files[index] == NULL) {
+                            perror("strdup");
+                            closedir(dir);
+                            for (int j = 0; j < index; j++) {
+                                free(files[j]);
+                            }
+                            free(files);
+                            return NULL;
                         }
+                        char *filename = files[index];
+                        char *dot = strrchr(filename, '.');
+                        if (dot != NULL && dot != filename && *(dot - 1) != '/') {
+                            *dot = '\0';
+                        }
+                        index++;
+                      }
                     }
                 }
             }
