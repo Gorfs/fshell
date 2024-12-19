@@ -579,7 +579,7 @@ char** list_path_files(char* path, int hidden_files, int recursive, char* extens
 
                 if (include) {
                     if (S_ISDIR(st.st_mode) && recursive) {
-                      if (extension != NULL){
+                      if (extension == NULL){
                         files[index] = strdup(full_path);
                         if (files[index] == NULL) {
                             perror("strdup");
@@ -622,10 +622,12 @@ char** list_path_files(char* path, int hidden_files, int recursive, char* extens
                             free(files);
                             return NULL;
                         }
-                        char *filename = files[index];
-                        char *dot = strrchr(filename, '.');
-                        if (dot != NULL && dot != filename && *(dot - 1) != '/') {
+                        if (extension != NULL){
+                          char *filename = files[index];
+                          char *dot = strrchr(filename, '.');
+                          if (dot != NULL && dot != filename && *(dot - 1) != '/') {
                             *dot = '\0';
+                          }
                         }
                         index++;
                       }
