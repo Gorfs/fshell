@@ -162,106 +162,158 @@ int earliest_delimiter_index(char *input) {
   
 }
 
-
+int earliest_unmatched_closing_bracket(char* input) {
+    int number_of_open_brackets = 0;
+    int index = 0;
+    for (size_t i = 0; i < strlen(input); i++){
+        if (input[i] == '{'){
+            number_of_open_brackets++;
+        }
+        else if (input[i] == '}'){
+            if (number_of_open_brackets == 0){
+                return index;
+            }
+            else{
+                number_of_open_brackets--;
+            }
+        }
+        index++;
+    }
+    return -1; // No unmatched closing bracket found
+}
 
 /**
  * @brief algorithm a 2-pointers  pour separer les commandes par delmiters puis
  * par espaces pour plus facilement les traiter ensuite.
  * @param input : the string to be tokenised
- * @return 2d array of commands and delimiters to be executed , NULL if there is
- * an error
- *  */
-char ***tokenise_cmds(char *input) {
-  if (input == NULL || strlen(input) == 0) {
-    return NULL;
-  }
-  char ***result =
-      malloc(2 * sizeof(char **)); // minimum space required for the result +
-                                   // it's null terminator
-  // int result_size = 2;
-  if (result == NULL) {
-    perror("error allocating space in tokenisation.c");
-    return NULL;
-  }
-  int cmd_index = 0;
-
-  while (*input == ' ') {
-    input++; // skip leading spaces
-  }
-
-  int c_pointer = 0;
-
-  while (*input) {
-    while (input[0] == ' ') {
-      input++; // skip leading spaces
+ * @return 2d array of commands and delimiters to be executed , NULL if there is an error
+ *  */ 
+char*** tokenise_cmds(char* input){
+    if (input == NULL || strlen(input) == 0){
+        return NULL;
     }
-    result = realloc(result, (cmd_index + 2) * sizeof(char **));
-    if (result == NULL) {
-      perror("erreur de réallocation de mémoire");
-      goto error;
+    char*** result = malloc(2 * sizeof(char**)); // minimum space required for the result + it's null terminator
+    //int result_size = 2;
+    if(result == NULL){
+        perror("error allocating space in tokenisation.c");
+        return NULL;
+    }
+    int cmd_index = 0;
+    int number_of_open_brackets = 0;
+    char* last_delimiter = NULL;
+    while(*input == ' '){
+        input++; // skip leading spaces
     }
 
-    c_pointer = earliest_delimiter_index(input);
-    if (c_pointer == -1) {
-      // no more delimiters. we just tokenise the rest of the input
-      result[cmd_index] = tokenise_cmd(input);
-      if (result[cmd_index] == NULL) {
-        perror("erreur de tokenisation de la commande");
-        goto error;
-      }
-      cmd_index++;
-      break;
+    int delimiter_length = 0;
+    //int p_pointer = 0;
+    int c_pointer = 0;
+
+    while(*input){
+        while(input[0] == ' '){
+            input++; // skip leading spaces
+        }
+        if (!*input){
+            break;
+        }
+        result = realloc(result, (cmd_index + 2) * sizeof(char**));
+        if (result == NULL) {
+            perror("erreur de réallocation de mémoire");
+            goto error;
+        }
+        if (last_delimiter != NULL && strcmp(last_delimiter, "{") == 0){
+            c_pointer = earliest_unmatched_closing_bracket(input);
+        }
+        else{
+            c_pointer = earliest_delimiter_index(input);
+        }
+        if(c_pointer == -1){
+            //Plus de délimitations, on continue sur la suite de l'input
+            result[cmd_index] = tokenise_cmd(input);
+            if(result[cmd_index] == NULL){
+                perror("erreur de tokenisation de la commande");
+                goto error;
+            }
+            cmd_index++;
+            break;
+        }
+
+        if(c_pointer == 0){
+            //On a trouvé un délimiteur au début de l'input
+            delimiter_length = strlen(earliest_delimiter(input));
+            if (delimiter_length == 0){
+              perror("erreur de calcul de la longueur du délimiteur");
+              goto error;
+            }
+            char* delimiter = malloc((delimiter_length + 1) * sizeof(char));
+            if (delimiter == NULL){
+                perror("erreur d'allocation de mémoire");
+                goto error;
+            }
+            strncpy(delimiter, input, delimiter_length);
+            delimiter[delimiter_length] = '\0';
+
+            result[cmd_index] = malloc(2 * sizeof(char*));
+            if(result[cmd_index] == NULL){
+                perror("erreur d'allocation de mémoire");
+                free(delimiter);
+                goto error;
+            }
+            result[cmd_index][0] = delimiter;
+            last_delimiter = delimiter;
+            if (strcmp(last_delimiter, "{") == 0){
+                number_of_open_brackets++;
+            }
+            else if (strcmp(last_delimiter, "}") == 0){
+                number_of_open_brackets--;
+            }
+            result[cmd_index][1] = NULL;
+            cmd_index++;
+            input += delimiter_length;
+        }
+        else{
+            //On a trouvé un token avant le délimiteur;
+            char* string_to_tokenise = malloc((c_pointer + 1) * sizeof(char));
+            if(string_to_tokenise == NULL){
+                perror("erreur d'allocation de mémoire");
+                goto error;
+            }
+            strncpy(string_to_tokenise, input, c_pointer);
+            string_to_tokenise[c_pointer] = '\0';
+            if (last_delimiter != NULL && strcmp(last_delimiter, "{") == 0){
+                result[cmd_index] = malloc(2 * sizeof(char*));
+                if(result[cmd_index] == NULL){
+                    perror("erreur d'allocation de mémoire");
+                    free(string_to_tokenise);
+                    goto error;
+                }
+                result[cmd_index][0] = string_to_tokenise;
+                result[cmd_index][1] = NULL;
+                last_delimiter = NULL;
+            }
+            else{
+                result[cmd_index] = tokenise_cmd(string_to_tokenise);
+                if(result[cmd_index] == NULL){
+                    perror("erreur d'allocation de mémoire");
+                    free(string_to_tokenise);
+                    goto error;
+                }
+                free(string_to_tokenise);
+            }
+            cmd_index++;
+            input += c_pointer;
+            while(*input == ' '){
+                input++; // skip trailing spaces
+            }
+        }
     }
-    if (c_pointer == 0) {
-      // On a trouvé un délimiteur au début de l'input ou on a plus de delimiter
-      int delimiter_length =  strlen(earliest_delimiter(input));
-
-      if (delimiter_length == 0) {
-        perror("erreur de calcul de la longueur du délimiteur");
-        goto error;
-      }
-      char *delimiter = malloc((delimiter_length + 1) * sizeof(char));
-      if (delimiter == NULL) {
-        perror("erreur d'allocation de mémoire");
-        goto error;
-      }
-      strncpy(delimiter, input, delimiter_length);
-      delimiter[delimiter_length] = '\0';
-
-      result[cmd_index] = malloc(2 * sizeof(char *));
-      if (result[cmd_index] == NULL) {
-        perror("erreur d'allocation de mémoire");
-        free(delimiter);
-        goto error;
-      }
-      result[cmd_index][0] = delimiter;
-      result[cmd_index][1] = NULL;
-      cmd_index++;
-      input += delimiter_length;
-    } else {
-      // On a trouvé un token avant le délimiteur;
-      char *string_to_tokenise = malloc((c_pointer + 1) * sizeof(char));
-      if (string_to_tokenise == NULL) {
-        perror("erreur d'allocation de mémoire");
-        goto error;
-      }
-      strncpy(string_to_tokenise, input, c_pointer);
-      string_to_tokenise[c_pointer] = '\0';
-
-      result[cmd_index] = tokenise_cmd(string_to_tokenise);
-      if (result[cmd_index] == NULL) {
-        perror("erreur d'allocation de mémoire");
-        free(string_to_tokenise);
-        goto error;
-      }
-      cmd_index++;
-      free(string_to_tokenise);
-      input += c_pointer;
+    result[cmd_index] = NULL; // null terminate the array
+    if (number_of_open_brackets == 0){
+        return result;
     }
-  }
-  result[cmd_index] = NULL; // null terminate the array
-
-  return result;
+    else{
+        goto error;
+    }
 
 error:
   for (int i = 0; i < cmd_index; i++) {

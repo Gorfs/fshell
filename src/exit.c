@@ -8,10 +8,14 @@ void free_tokens(char*** tokens){
     return;
   }
   for(int i = 0; tokens[i] != NULL; i++){
-    for (int j = 0; tokens[i][j] != NULL; j++){
-      free(tokens[i][j]);
+    if (tokens[i] != NULL) {
+      for (int j = 0; tokens[i][j] != NULL; j++){
+        if (tokens[i][j] != NULL) {
+          free(tokens[i][j]);
+        }
+      }
+      free(tokens[i]);
     }
-    free(tokens[i]);
   }
   free(tokens);
 }

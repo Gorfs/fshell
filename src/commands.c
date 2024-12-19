@@ -21,7 +21,20 @@
 char* internal_commands[] = {"exit", "pwd", "cd", "ftype", NULL};
 // list of ignored delimiters when it comes to command execution
 char* redirection_delimiters[] = {">", ">>", "<", "<<","|>",">|", "|>>", "2>", "2>>","2>|", NULL};
-
+/*
+int is_internal_command(char* command_name){
+    // check if the command is an internal command (just checking one for now)
+    char* command_to_check = internal_commands[0];
+    int i = 0;
+    while(command_to_check){
+        if (strcmp(command_name, command_to_check) == 0){
+            return 1;
+        }
+        command_to_check = internal_commands[i++];
+    }
+    return 0;
+}
+*/
 int is_fd_valid(int fd) {
   int flags = fcntl(fd, F_GETFD);
   if (flags == -1 && errno == EBADF) {
@@ -419,62 +432,209 @@ int len_command(char** command){
     return i;
 }
 
+int test_extension(char* full_path, char* extension){
+  char* dot = strrchr(full_path, '.');
+  if (dot == NULL || strcmp(dot + 1, extension) != 0) {
+    return 0;
+  }
+  else{
+    return 1;
+  }
+}
+
 /**
  * @brief list all the files in a directory
  * @param path : the path of the directory
  * @return a list of strings containing the path of the files in the directory
  */
-char** list_path_files(char* path){
+int count_files_recursive(char* path, int hidden_files, int recursive, char* extension, char type) {
     DIR *dir;
     struct dirent *entry;
-    char** files = NULL;
-    int size = 0;
-    
+    int count = 0;
+
     dir = opendir(path);
     if (dir == NULL) {
         perror("opendir");
-        return NULL;
+        return 0;
     }
 
-    while((entry = readdir(dir)) != NULL){
-        if (entry->d_name[0] != '.' && entry->d_type == DT_REG){ // Skip hidden files
-            size++;
+    while ((entry = readdir(dir)) != NULL) {
+        if ((entry->d_name[0] != '.' || (hidden_files == 1 && entry->d_name[0] == '.')) && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
+            int path_len = strlen(path);
+            int name_len = strlen(entry->d_name);
+            int full_path_len = path_len + 1 + name_len + 1;
+
+            char *full_path = malloc(full_path_len);
+            if (full_path == NULL) {
+                perror("malloc");
+                closedir(dir);
+                return count;
+            }
+
+            snprintf(full_path, full_path_len, "%s/%s", path, entry->d_name);
+
+            struct stat st;
+            if (lstat(full_path, &st) == 0) {
+                int include = 1;
+                switch (type) {
+                    case 'f':
+                        include = S_ISREG(st.st_mode);
+                        break;
+                    case 'd':
+                        include = S_ISDIR(st.st_mode);
+                        break;
+                    case 'l':
+                        include = S_ISLNK(st.st_mode);
+                        break;
+                    case 'p':
+                        include = S_ISFIFO(st.st_mode);
+                        break;
+                    default:
+                        include = 1;
+                        break;
+                }
+
+                int is_extension = 0;
+                if (extension != NULL){
+                  is_extension = test_extension(full_path,extension);
+                }
+
+                if (include || (recursive && S_ISDIR(st.st_mode))) {
+                    if (S_ISDIR(st.st_mode) && recursive) {
+                        count += count_files_recursive(full_path, hidden_files, recursive, extension, type);
+                    }
+                    if ((extension == NULL && include) || (extension != NULL && is_extension == 1 && include)){
+                      count++;
+                    }
+                }
+            }
+            free(full_path);
         }
     }
     closedir(dir);
+    return count;
+}
 
-    files = malloc(sizeof(char*) * (size + 1));
+char** list_path_files(char* path, int hidden_files, int recursive, char* extension, char type) {
+    int size = count_files_recursive(path, hidden_files, recursive, extension, type);
+    char** files = malloc(sizeof(char*) * (size + 1));
     if (files == NULL) {
         perror("malloc");
         return NULL;
     }
 
+    DIR *dir;
+    struct dirent *entry;
+    int index = 0;
+
     dir = opendir(path);
     if (dir == NULL) {
         perror("opendir");
-        for (int i = 0; files[i] != NULL; i++){
-            free(files[i]);
-        }
         free(files);
         return NULL;
     }
 
-    int index = 0;
-    while((entry = readdir(dir)) != NULL){
-        if (entry->d_name[0] != '.' && entry->d_type == DT_REG){ // Skip hidden files
-            
-            files[index] = malloc(strlen(path) + strlen(entry->d_name) + 2);
-            if (files[index] == NULL){
+    while ((entry = readdir(dir)) != NULL) {
+        if ((entry->d_name[0] != '.' || (hidden_files == 1 && entry->d_name[0] == '.')) && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
+            int path_len = strlen(path);
+            int name_len = strlen(entry->d_name);
+            int full_path_len = path_len + 1 + name_len + 1;
+
+            char *full_path = malloc(full_path_len);
+            if (full_path == NULL) {
+                perror("malloc");
                 closedir(dir);
-                for (int i = 0; i < index; i++){
+                for (int i = 0; i < index; i++) {
                     free(files[i]);
                 }
                 free(files);
-                perror("malloc");
                 return NULL;
             }
-            snprintf(files[index], strlen(path) + strlen(entry->d_name) + 2, "%s/%s", path, entry->d_name);
-            index++;
+
+            snprintf(full_path, full_path_len, "%s/%s", path, entry->d_name);
+            int is_extension = 0;
+            if (extension != NULL){
+              is_extension = test_extension(full_path, extension);
+            }
+            struct stat st;
+            if (lstat(full_path, &st) == 0) {
+                int include = 1;
+                switch (type) {
+                    case 'f':
+                        include = S_ISREG(st.st_mode);
+                        break;
+                    case 'd':
+                        include = S_ISDIR(st.st_mode);
+                        break;
+                    case 'l':
+                        include = S_ISLNK(st.st_mode);
+                        break;
+                    case 'p':
+                        include = S_ISFIFO(st.st_mode);
+                        break;
+                    default:
+                        include = 1;
+                        break;
+                }
+
+                if (include || (recursive && S_ISDIR(st.st_mode))) {
+                    if (S_ISDIR(st.st_mode) && recursive) {
+                      if (extension == NULL && include){
+                        files[index] = strdup(full_path);
+                        if (files[index] == NULL) {
+                            perror("strdup");
+                            closedir(dir);
+                            for (int j = 0; j < index; j++) {
+                                free(files[j]);
+                            }
+                            free(files);
+                            return NULL;
+                        }
+                        index++;
+                      }
+                        char** sub_files = list_path_files(full_path, hidden_files, recursive, extension, type);
+                        if (sub_files != NULL) {
+                            for (int i = 0; sub_files[i] != NULL; i++, index++) {
+                                files[index] = strdup(sub_files[i]);
+                                if (files[index] == NULL) {
+                                    perror("strdup");
+                                    closedir(dir);
+                                    for (int j = 0; j < index; j++) {
+                                        free(files[j]);
+                                    }
+                                    free(files);
+                                    free(sub_files);
+                                    return NULL;
+                                }
+                                free(sub_files[i]);
+                            }
+                            free(sub_files);
+                        }
+                    } else {
+                      if (extension == NULL || (extension != NULL && is_extension == 1)){
+                        files[index] = strdup(full_path);
+                        if (files[index] == NULL) {
+                            perror("strdup");
+                            closedir(dir);
+                            for (int j = 0; j < index; j++) {
+                                free(files[j]);
+                            }
+                            free(files);
+                            return NULL;
+                        }
+                        if (extension != NULL){
+                          char *filename = files[index];
+                          char *dot = strrchr(filename, '.');
+                          if (dot != NULL && dot != filename && *(dot - 1) != '/') {
+                            *dot = '\0';
+                          }
+                        }
+                        index++;
+                      }
+                    }
+                }
+            }
+            free(full_path);
         }
     }
     closedir(dir);
@@ -482,60 +642,51 @@ char** list_path_files(char* path){
     return files;
 }
 
-/**
- * @brief format a command for a for loop
- * @param command : the command to format
- * @param var_name : the name of the variable
- * @param file_name : the name of the file
- * @return the formatted command
- */
-char** format_for_loop_command(char** command, char* var_name, char* file_name){
-  char** new_command = malloc(sizeof(char*) * (len_command(command) + 1));
-  char new_var_name[strlen(var_name) + 2];
-  sprintf(new_var_name, "$%s", var_name);
-  if (new_command == NULL){
-    perror("malloc");
-    return NULL;
-  }
-  int i = 0;
-  for (; i < len_command(command); i++){
-    // HERE IS THE ERROR -----------------------------------
-    if (strcmp(command[i], new_var_name) == 0){
-      new_command[i] = strdup(file_name);
-      if (new_command[i] == NULL){
-        perror("strdup");
-        for (int j = 0; new_command[j] != NULL; j++){
-          free(new_command[j]);
-        }
-        free(new_command);
-        return NULL;
-      }
-    }else if(strstr(command[i], new_var_name)){
-      new_command[i] = str_replace(command[i], new_var_name, file_name);
-      if(new_command[i] == NULL){
-        perror("str_replace error");
-        for (int j = 0; new_command[j] != NULL; j++){
-          free(new_command[j]);
-        }
-        free(new_command);
-        return NULL;
-      }
-    } else {
-      new_command[i] = strdup(command[i]);
-      if (new_command[i] == NULL){
-        perror("strdup");
-        for (int j = 0; new_command[j] != NULL; j++){
-          free(new_command[j]);
-        }
-        free(new_command);
-        return NULL;
-      }
+
+int replace_var_name_to_file_name(char*** commands, char* var_name, char* file_name) {
+    if (!commands || !var_name || !file_name) {
+        return 1; // Invalid input
     }
-    // end of potential error -------------------------------
-  }
-  new_command[i] = NULL;
-  return new_command;
+
+    for (int i = 0; commands[i]; i++) {
+        for (int j = 0; commands[i][j]; j++) {
+            char* str = commands[i][j];
+            size_t var_len = strlen(var_name);
+            size_t str_len = strlen(str);
+            char* pos = str;
+            
+            while ((pos = strstr(pos, var_name)) != NULL) {
+                size_t pos_index = pos - str;
+                size_t new_len = str_len - var_len + strlen(file_name) + 1;
+                char* new_str = malloc(new_len);
+
+                if (!new_str) {
+                    return 1; // Memory allocation failed
+                }
+
+                // Copy part before var_name
+                strncpy(new_str, str, pos_index);
+                new_str[pos_index] = '\0';
+
+                // Append file_name and remaining part of the string
+                strcat(new_str, file_name);
+                strcat(new_str, pos + var_len);
+
+                // Free old string and update to new string
+                free(commands[i][j]);
+                commands[i][j] = new_str;
+
+                // Update string information for next search
+                str_len = new_len - 1;
+                str = new_str;
+                pos = str + pos_index + strlen(file_name);
+            }
+        }
+    }
+
+    return 0; // Success
 }
+
 
 //["for", "F", "in", "words2"], ["{"], ["ftype", "$F"], ["}"]
 /**
@@ -546,11 +697,16 @@ char** format_for_loop_command(char** command, char* var_name, char* file_name){
  *  @return the value of the last command
  */ 
 int run_for(char*** commands, int i, int last_val){
-    if (len_command(commands[i]) != 4){
-        perror("for loop must have 4 arguments");
+    if (strcmp(commands[i][0], "for") != 0 && strcmp(commands[i][2], "in") != 0){
+        perror("syntax error");
         return 1;
     }
     char* var_name = commands[i][1];
+    char* final_var_name = malloc(strlen(var_name) + 2);
+    if (final_var_name){
+        strcpy(final_var_name, "$");
+        strcat(final_var_name, var_name);
+    }
     char* rep_path_name = commands[i][3];
 
     if (strcmp(commands[i+1][0], "{") != 0){
@@ -563,35 +719,277 @@ int run_for(char*** commands, int i, int last_val){
         return 1;
     }
 
-    char** list_of_path_files = list_path_files(rep_path_name);
+    int hidden_files = 0;
+    int recursive = 0;
+    char* extension = NULL;
+    char type = ' ';
+    int max_loops = -1;
+
+    for (int j = 4; commands[i][j] != NULL; j++) {
+      if (strcmp(commands[i][j], "-A") == 0) {
+        hidden_files = 1;
+      } else if (strcmp(commands[i][j], "-r") == 0) {
+        recursive = 1;
+      } else if (strcmp(commands[i][j], "-e") == 0) {
+        if (commands[i][j+1] != NULL) {
+          extension = commands[i][j+1];
+          j++;  // Skip the next element as it's the extension
+        }
+      } else if (strcmp(commands[i][j], "-t") == 0) {
+        if (commands[i][j+1] != NULL) {
+          if (strcmp(commands[i][j+1], "f") == 0) {
+            type = 'f';
+          } else if (strcmp(commands[i][j+1], "d") == 0) {
+            type = 'd';
+          } else if (strcmp(commands[i][j+1], "l") == 0) {
+            type = 'l';
+          } else if (strcmp(commands[i][j+1], "p") == 0) {
+            type = 'p';
+          }
+          j++;  // Skip the next element as it's the type
+        }
+      } else if (strcmp(commands[i][j], "-p") == 0) {
+        if (commands[i][j+1] != NULL) {
+          max_loops = atoi(commands[i][j+1]);
+          j++;  // Skip the next element as it's the number
+        }
+      }
+    }
+
+    char** list_of_path_files = list_path_files(rep_path_name, hidden_files, recursive, extension, type);
     if (list_of_path_files == NULL){
         perror("error in list_path_files");
         return 1;
     }
 
     int status = last_val;
+    int max_status = 0;
 
-    for (int j = 0; list_of_path_files[j] != NULL; j++){
-        char** formated_command = format_for_loop_command(commands[i+2], var_name, list_of_path_files[j]);
-        if (formated_command == NULL){
-            perror("error in format_for_loop_command");
+    for (int j = 0; list_of_path_files[j] != NULL && (max_loops == -1 || j < max_loops); j++){
+        char*** tokens = tokenise_cmds(commands[i+2][0]);
+        if (tokens == NULL){
+            perror("error in tokenise_cmds");
+            free(list_of_path_files);
             return 1;
         }
-        status = run_command(commands, formated_command, status, STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO); 
-        for (int k = 0; formated_command[k] != NULL; k++){
-            free(formated_command[k]);
+        int success = replace_var_name_to_file_name(tokens, final_var_name, list_of_path_files[j]);
+        if (success != 0){
+            perror("error in replace_var_name_to_file_name");
+            free(list_of_path_files);
+            free(tokens);
+            return 1;
         }
-        free(formated_command);
+        status = run_commands(tokens, status);
+        if (status > max_status){
+          max_status = status;
+        }
+        free_tokens(tokens);
     }
 
     for (int j = 0; list_of_path_files[j] != NULL; j++){
         free(list_of_path_files[j]);
     }
     free(list_of_path_files);
+    free(final_var_name);
+    return max_status;
+}
+/*
+char*** create_blocks(char*** commands) {
+    int cmd_len = 0; // length of the commands
+    while (commands[cmd_len] != NULL) {
+        cmd_len++;
+    }
+
+    char*** new_commands = malloc(sizeof(char**) * (cmd_len + 1)); // new array to store the commands
+    if (new_commands == NULL) {
+        perror("malloc");
+        return NULL;
+    }
+
+    int new_i = 0; // index for the new array
+    int j = 0; // index for the old array
+    int n = 0; // count then number of open brackets, by adding 1 for each "{" and -1 for each "}"
+
+    while (commands[j] != NULL) {
+        // Adding the current block to the new commands array
+        new_commands[new_i] = commands[j];
+        new_i++;
+
+        if (strcmp(commands[j][0], "{") == 0) { // First open brackets, start of the block
+            int offset = j + 1;
+            char* block = malloc(1 * sizeof(char)); // allocate memory for the block
+            if (block == NULL) {
+                perror("malloc");
+                free(new_commands);
+                return NULL;
+            }
+            block[0] = '\0'; // null terminate the block
+
+            while (commands[offset] != NULL && (strcmp(commands[offset][0], "}") != 0 || n != 0)) {
+                if (strcmp(commands[offset][0], "{") == 0) {
+                    n++;
+                } else if (strcmp(commands[offset][0], "}") == 0) {
+                    n--;
+                }
+
+                // new size of the block
+                size_t new_size = strlen(block) + strlen(commands[offset][0]) + 1; // +1 for the null terminator
+                // reallocate memory for the block
+                char* temp = realloc(block, new_size); // reallocate memory for the block
+                if (temp == NULL) { // error handling
+                    perror("realloc");
+                    free(new_commands);
+                    free(block);
+                    return NULL;
+                }
+                block = temp;
+                strcat(block, commands[offset][0]); // add the token to the block
+
+                for (int k = 1; commands[offset][k] != NULL; k++) { // add the rest of the tokens
+                    new_size = strlen(block) + strlen(commands[offset][k]) + 2; // +2 for the space and the null terminator
+                    temp = realloc(block, new_size); // reallocate memory for the block
+                    if (temp == NULL) { // error handling
+                        perror("realloc");
+                        free(new_commands);
+                        free(block);
+                        return NULL;
+                    }
+                    block = temp;
+
+                    strcat(block, " ");
+                    strcat(block, commands[offset][k]);
+                }
+                offset++;
+            }
+            new_commands[new_i] = malloc(sizeof(char*) * 2); // allocate memory for the block
+            if (new_commands[new_i] == NULL) { // error handling
+                perror("malloc");
+                free(new_commands);
+                free(block);
+                return NULL;
+            }
+            char* temp = malloc(strlen(block) + 1); // allocate memory for the block
+            if (temp == NULL) { // error handling
+                perror("malloc");
+                free(new_commands);
+                free(block);
+                free(temp);
+                return NULL;
+            }
+            strcpy(temp, block); // copy the block to the new array
+            new_commands[new_i][0] = temp; // add the block as a string to the new array
+
+            new_commands[new_i][1] = NULL; // null terminate the block
+            new_i++; // increment the index of the new array
+            j = offset; // skip the block
+            free(block); // free the block
+        } else {
+            j++;
+        }
+    }
+    new_commands[cmd_len] = NULL; // null terminate the new array
+    return new_commands;
+}
+*/
+int run_if(char*** commands, int i, int last_val) {
+    // Checks if the "if" statement is followed by a block
+    if (strcmp(commands[i+1][0], "{") != 0){
+        perror("if statement must be followed by a block");
+        return 1;
+    }
+
+    // Checks if the "if" statement is closed with a "}"
+    if (strcmp(commands[i+3][0], "}") != 0){
+        perror("if statement must be closed with a }");
+        return 1;
+    }
+
+    // Get the status of the last command
+    int status = last_val;
+
+    // Init a new array to store the condition
+    char ***if_condition = malloc(sizeof(char**) * 2);
+    if (if_condition == NULL) {
+        perror("malloc");
+        return 1;
+    }
+    // Set the condition to the command after the "if" statement
+    if_condition[0] = commands[i] + 1;
+    if_condition[1] = NULL;
+
+    // Run the condition
+    status = run_commands(if_condition, status);
+
+    if (status == 0) { // if the status is 0, then the condition is true
+        // Init a new array to store the block of commands if the condition is true
+        char ***if_then = tokenise_cmds(commands[i+2][0]); // Run the block of commands if the condition is true
+        status = run_commands(if_then, status);
+        free_tokens(if_then);
+
+    } else if (commands[i+4] != NULL && strcmp(commands[i+4][0], "else") == 0) { // if the status is not 0, then the condition is false
+        // Checks if the "else" statement is followed by a block
+        if (strcmp(commands[i+5][0], "{") != 0){
+            perror("else statement must be followed by a block");
+            free(if_condition);
+            return 1;
+        }
+
+        // Checks if the "else" statement is closed with a "}"
+        if (strcmp(commands[i+7][0], "}") != 0){
+            perror("else statement must be closed with a }");
+            free(if_condition);
+            return 1;
+        }
+
+        // Init a new array to store the block of commands if the condition is false
+        char ***if_else = tokenise_cmds(commands[i+6][0]);
+        // Run the block of commands after the "else" statement
+        status = run_commands(if_else, status);
+        free_tokens(if_else);
+    } else {
+        status = 0; // if there is no "else" statement, the status is 0
+    }
+
+    free(if_condition);
     return status;
 }
 
-
+/*
+int run_command(char*** commands, char** command, int last_val){
+    int status = last_val;
+    char* command_name = command[0];
+    // determine if the command is internal or external
+    if (is_internal_command(command_name) == 1){
+        // run the internal command
+        // there must be a cleaner way to do this, this is just sad.
+        if(strcmp(command_name, "exit") == 0){
+            command_exit(commands, command, status);
+        }else if (strcmp(command_name, "pwd") == 0){
+            status = command_pwd(1);
+        }else if (strcmp(command_name, "cd") == 0){
+            status = command_cd(command);
+        }else if (strcmp(command_name, "ftype") == 0){
+            status = command_ftype(command);
+        }else{
+            // error handling
+            perror("error running internal command");
+            status = 1;
+        }
+    }else{
+        // make a new process
+        pid_t pid = fork();
+        if (pid == 0){
+            // child process
+            execvp(command_name, command);
+            exit(1);
+            // if the execvp function returns, there was an error:
+            perror("error executing the command");
+        }else{
+            // parent process
+            waitpid(pid, &status, 0);
+            status = WEXITSTATUS(status);
+       }
+*/
 /**
  * @brief run a single command
  * @param commands : the list of commands (only required for command_exit())
@@ -727,7 +1125,19 @@ int run_commands(char*** commands, int last_val){
       while(commands[i] != NULL && strcmp(commands[i][0], "}") != 0){
         i++;
       }
-    }else if(commands[i + 1] != NULL && strcmp(commands[i+1][0], "|") == 0){ // if the next delimiter is a pipe
+    } else if (strcmp(commands[i][0], "if") == 0) {
+        last_val = run_if(commands, i, last_val);
+        while (commands[i] != NULL && strcmp(commands[i][0], "}") != 0) {
+            i++;
+        }
+        // check if there is an else statement
+        if (commands[i + 1] != NULL && strcmp(commands[i + 1][0], "else") == 0) {
+            i++;
+            while (commands[i] != NULL && strcmp(commands[i][0], "}") != 0) {
+                i++;
+            }
+        }
+    } else if(commands[i + 1] != NULL && strcmp(commands[i+1][0], "|") == 0){ // if the next delimiter is a pipe
       // pipe, so we fork()
       if (fork() == 0){
         // child
