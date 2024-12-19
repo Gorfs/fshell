@@ -21,7 +21,7 @@
 char* internal_commands[] = {"exit", "pwd", "cd", "ftype", NULL};
 // list of ignored delimiters when it comes to command execution
 char* redirection_delimiters[] = {">", ">>", "<", "<<","|>",">|", "|>>", "2>", "2>>","2>|", NULL};
-
+/*
 int is_internal_command(char* command_name){
     // check if the command is an internal command (just checking one for now)
     char* command_to_check = internal_commands[0];
@@ -34,6 +34,7 @@ int is_internal_command(char* command_name){
     }
     return 0;
 }
+*/
 int is_fd_valid(int fd) {
   int flags = fcntl(fd, F_GETFD);
   if (flags == -1 && errno == EBADF) {
@@ -494,6 +495,7 @@ char** list_path_files(char* path){
     return files;
 }
 
+
 int replace_var_name_to_file_name(char*** commands, char* var_name, char* file_name) {
     if (!commands || !var_name || !file_name) {
         return 1; // Invalid input
@@ -533,33 +535,11 @@ int replace_var_name_to_file_name(char*** commands, char* var_name, char* file_n
                 pos = str + pos_index + strlen(file_name);
             }
         }
-        free(new_command);
-        return NULL;
-      }
-    }else if(strstr(command[i], new_var_name)){
-      new_command[i] = str_replace(command[i], new_var_name, file_name);
-      if(new_command[i] == NULL){
-        perror("str_replace error");
-        for (int j = 0; new_command[j] != NULL; j++){
-          free(new_command[j]);
-        }
-        free(new_command);
-        return NULL;
-      }
-    } else {
-      new_command[i] = strdup(command[i]);
-      if (new_command[i] == NULL){
-        perror("strdup");
-        for (int j = 0; new_command[j] != NULL; j++){
-          free(new_command[j]);
-        }
-        free(new_command);
-        return NULL;
-      }
     }
 
     return 0; // Success
 }
+
 
 //["for", "F", "in", "words2"], ["{"], ["ftype", "$F"], ["}"]
 /**
