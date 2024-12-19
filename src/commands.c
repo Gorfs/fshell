@@ -697,10 +697,20 @@ int replace_var_name_to_file_name(char*** commands, char* var_name, char* file_n
  *  @return the value of the last command
  */ 
 int run_for(char*** commands, int i, int last_val){
-    if (strcmp(commands[i][0], "for") != 0 && strcmp(commands[i][2], "in") != 0){
-        perror("syntax error");
-        return 1;
+    int cmd_first_token_size = 0; // length of the first token
+    for (int j = 0; commands[i][j] != NULL; j++) {
+        cmd_first_token_size++;
     }
+    if (cmd_first_token_size < 4) {
+        perror("syntax error");
+        return 2;
+    }
+
+    if (strcmp(commands[i][0], "for") != 0 || strcmp(commands[i][2], "in") != 0){
+        perror("syntax error");
+        return 2;
+    }
+
     char* var_name = commands[i][1];
     char* final_var_name = malloc(strlen(var_name) + 2);
     if (final_var_name){
@@ -709,14 +719,14 @@ int run_for(char*** commands, int i, int last_val){
     }
     char* rep_path_name = commands[i][3];
 
-    if (strcmp(commands[i+1][0], "{") != 0){
+    if (strcmp(commands[i+1][0], "{") != 0) {
         perror("for loop must be followed by a block");
-        return 1;
+        return 2;
     }
 
     if (strcmp(commands[i+3][0], "}") != 0){
         perror("for loop must be closed with a }");
-        return 1;
+        return 2;
     }
 
     int hidden_files = 0;
@@ -892,16 +902,45 @@ char*** create_blocks(char*** commands) {
 }
 */
 int run_if(char*** commands, int i, int last_val) {
+    // Checks if the "if" statement is followed by a condition
+    int cmd_first_token_size = 0; // length of the first token
+    for (int j = 0; commands[i][j] != NULL; j++) {
+        cmd_first_token_size++;
+    }
+    if (cmd_first_token_size < 2) {
+        perror("syntax error");
+        return 2;
+    }
+
     // Checks if the "if" statement is followed by a block
     if (strcmp(commands[i+1][0], "{") != 0){
         perror("if statement must be followed by a block");
-        return 1;
+        return 2;
     }
 
     // Checks if the "if" statement is closed with a "}"
     if (strcmp(commands[i+3][0], "}") != 0){
         perror("if statement must be closed with a }");
-        return 1;
+        return 2;
+    }
+
+    if (commands[i+4] != NULL && strcmp(commands[i+4][0], "else") == 0) { // make sure the syntax for "else" is correct
+        if (commands[i+4][1] != NULL) {
+            perror("syntax error");
+            return 2;
+        }
+
+        // Checks if the "else" statement is followed by a block
+        if (strcmp(commands[i+5][0], "{") != 0){
+            perror("else statement must be followed by a block");
+            return 2;
+        }
+
+        // Checks if the "else" statement is closed with a "}"
+        if (strcmp(commands[i+7][0], "}") != 0){
+            perror("else statement must be closed with a }");
+            return 2;
+        }
     }
 
     // Get the status of the last command
@@ -927,20 +966,6 @@ int run_if(char*** commands, int i, int last_val) {
         free_tokens(if_then);
 
     } else if (commands[i+4] != NULL && strcmp(commands[i+4][0], "else") == 0) { // if the status is not 0, then the condition is false
-        // Checks if the "else" statement is followed by a block
-        if (strcmp(commands[i+5][0], "{") != 0){
-            perror("else statement must be followed by a block");
-            free(if_condition);
-            return 1;
-        }
-
-        // Checks if the "else" statement is closed with a "}"
-        if (strcmp(commands[i+7][0], "}") != 0){
-            perror("else statement must be closed with a }");
-            free(if_condition);
-            return 1;
-        }
-
         // Init a new array to store the block of commands if the condition is false
         char ***if_else = tokenise_cmds(commands[i+6][0]);
         // Run the block of commands after the "else" statement
