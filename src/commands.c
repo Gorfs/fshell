@@ -499,11 +499,11 @@ int count_files_recursive(char* path, int hidden_files, int recursive, char* ext
                   is_extension = test_extension(full_path,extension);
                 }
 
-                if (include) {
+                if (include || (recursive && S_ISDIR(st.st_mode))) {
                     if (S_ISDIR(st.st_mode) && recursive) {
                         count += count_files_recursive(full_path, hidden_files, recursive, extension, type);
                     }
-                    if (extension == NULL || (extension != NULL && is_extension == 1)){
+                    if ((extension == NULL && include) || (extension != NULL && is_extension == 1 && include)){
                       count++;
                     }
                 }
@@ -577,9 +577,9 @@ char** list_path_files(char* path, int hidden_files, int recursive, char* extens
                         break;
                 }
 
-                if (include) {
+                if (include || (recursive && S_ISDIR(st.st_mode))) {
                     if (S_ISDIR(st.st_mode) && recursive) {
-                      if (extension == NULL){
+                      if (extension == NULL && include){
                         files[index] = strdup(full_path);
                         if (files[index] == NULL) {
                             perror("strdup");
