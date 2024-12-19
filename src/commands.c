@@ -432,6 +432,16 @@ int len_command(char** command){
     return i;
 }
 
+int test_extension(char* full_path, char* extension){
+  char* dot = strrchr(full_path, '.');
+  if (dot == NULL || strcmp(dot + 1, extension) != 0) {
+    return 0;
+  }
+  else{
+    return 1;
+  }
+}
+
 /**
  * @brief list all the files in a directory
  * @param path : the path of the directory
@@ -484,18 +494,16 @@ int count_files_recursive(char* path, int hidden_files, int recursive, char* ext
                         break;
                 }
 
-                if (include && extension != NULL && S_ISREG(st.st_mode)) {
-                    char* dot = strrchr(entry->d_name, '.');
-                    if (dot == NULL || strcmp(dot + 1, extension) != 0) {
-                        include = 0;
-                    }
+                int is_extension = 0;
+                if (extension != NULL){
+                  is_extension = test_extension(full_path,extension);
                 }
 
                 if (include) {
                     if (S_ISDIR(st.st_mode) && recursive) {
                         count += count_files_recursive(full_path, hidden_files, recursive, extension, type);
                     }
-                    if (extension == NULL || (extension != NULL && !S_ISDIR(st.st_mode))){
+                    if (extension == NULL || (extension != NULL && is_extension == 1)){
                       count++;
                     }
                 }
@@ -544,7 +552,10 @@ char** list_path_files(char* path, int hidden_files, int recursive, char* extens
             }
 
             snprintf(full_path, full_path_len, "%s/%s", path, entry->d_name);
-
+            int is_extension = 0;
+            if (extension != NULL){
+              is_extension = test_extension(full_path, extension);
+            }
             struct stat st;
             if (lstat(full_path, &st) == 0) {
                 int include = 1;
@@ -564,13 +575,6 @@ char** list_path_files(char* path, int hidden_files, int recursive, char* extens
                     default:
                         include = 1;
                         break;
-                }
-
-                if (include && extension != NULL && S_ISREG(st.st_mode)) {
-                    char* dot = strrchr(entry->d_name, '.');
-                    if (dot == NULL || strcmp(dot + 1, extension) != 0) {
-                        include = 0;
-                    }
                 }
 
                 if (include) {
@@ -607,7 +611,7 @@ char** list_path_files(char* path, int hidden_files, int recursive, char* extens
                             free(sub_files);
                         }
                     } else {
-                      if (extension == NULL || (extension != NULL && !S_ISDIR(st.st_mode))){
+                      if (extension == NULL || (extension != NULL && is_extension == 1)){
                         files[index] = strdup(full_path);
                         if (files[index] == NULL) {
                             perror("strdup");
@@ -757,6 +761,7 @@ int run_for(char*** commands, int i, int last_val){
     }
 
     int status = last_val;
+    int max_status = 0;
 
     for (int j = 0; list_of_path_files[j] != NULL && (max_loops == -1 || j < max_loops); j++){
         char*** tokens = tokenise_cmds(commands[i+2][0]);
@@ -773,6 +778,9 @@ int run_for(char*** commands, int i, int last_val){
             return 1;
         }
         status = run_commands(tokens, status);
+        if (status > max_status){
+          max_status = status;
+        }
         free_tokens(tokens);
     }
 
@@ -781,7 +789,7 @@ int run_for(char*** commands, int i, int last_val){
     }
     free(list_of_path_files);
     free(final_var_name);
-    return status;
+    return max_status;
 }
 /*
 char*** create_blocks(char*** commands) {
