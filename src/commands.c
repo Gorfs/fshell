@@ -803,104 +803,7 @@ int run_for(char*** commands, int i, int last_val){
     free(final_var_name);
     return max_status;
 }
-/*
-char*** create_blocks(char*** commands) {
-    int cmd_len = 0; // length of the commands
-    while (commands[cmd_len] != NULL) {
-        cmd_len++;
-    }
 
-    char*** new_commands = malloc(sizeof(char**) * (cmd_len + 1)); // new array to store the commands
-    if (new_commands == NULL) {
-        perror("malloc");
-        return NULL;
-    }
-
-    int new_i = 0; // index for the new array
-    int j = 0; // index for the old array
-    int n = 0; // count then number of open brackets, by adding 1 for each "{" and -1 for each "}"
-
-    while (commands[j] != NULL) {
-        // Adding the current block to the new commands array
-        new_commands[new_i] = commands[j];
-        new_i++;
-
-        if (strcmp(commands[j][0], "{") == 0) { // First open brackets, start of the block
-            int offset = j + 1;
-            char* block = malloc(1 * sizeof(char)); // allocate memory for the block
-            if (block == NULL) {
-                perror("malloc");
-                free(new_commands);
-                return NULL;
-            }
-            block[0] = '\0'; // null terminate the block
-
-            while (commands[offset] != NULL && (strcmp(commands[offset][0], "}") != 0 || n != 0)) {
-                if (strcmp(commands[offset][0], "{") == 0) {
-                    n++;
-                } else if (strcmp(commands[offset][0], "}") == 0) {
-                    n--;
-                }
-
-                // new size of the block
-                size_t new_size = strlen(block) + strlen(commands[offset][0]) + 1; // +1 for the null terminator
-                // reallocate memory for the block
-                char* temp = realloc(block, new_size); // reallocate memory for the block
-                if (temp == NULL) { // error handling
-                    perror("realloc");
-                    free(new_commands);
-                    free(block);
-                    return NULL;
-                }
-                block = temp;
-                strcat(block, commands[offset][0]); // add the token to the block
-
-                for (int k = 1; commands[offset][k] != NULL; k++) { // add the rest of the tokens
-                    new_size = strlen(block) + strlen(commands[offset][k]) + 2; // +2 for the space and the null terminator
-                    temp = realloc(block, new_size); // reallocate memory for the block
-                    if (temp == NULL) { // error handling
-                        perror("realloc");
-                        free(new_commands);
-                        free(block);
-                        return NULL;
-                    }
-                    block = temp;
-
-                    strcat(block, " ");
-                    strcat(block, commands[offset][k]);
-                }
-                offset++;
-            }
-            new_commands[new_i] = malloc(sizeof(char*) * 2); // allocate memory for the block
-            if (new_commands[new_i] == NULL) { // error handling
-                perror("malloc");
-                free(new_commands);
-                free(block);
-                return NULL;
-            }
-            char* temp = malloc(strlen(block) + 1); // allocate memory for the block
-            if (temp == NULL) { // error handling
-                perror("malloc");
-                free(new_commands);
-                free(block);
-                free(temp);
-                return NULL;
-            }
-            strcpy(temp, block); // copy the block to the new array
-            new_commands[new_i][0] = temp; // add the block as a string to the new array
-
-            new_commands[new_i][1] = NULL; // null terminate the block
-            new_i++; // increment the index of the new array
-            j = offset; // skip the block
-            free(block); // free the block
-        } else {
-            j++;
-        }
-    }
-    new_commands[cmd_len] = NULL; // null terminate the new array
-    return new_commands;
-}
-*/
 int run_if(char*** commands, int i, int last_val) {
     // Checks if the "if" statement is followed by a condition
     int cmd_first_token_size = 0; // length of the first token
@@ -979,42 +882,7 @@ int run_if(char*** commands, int i, int last_val) {
     return status;
 }
 
-/*
-int run_command(char*** commands, char** command, int last_val){
-    int status = last_val;
-    char* command_name = command[0];
-    // determine if the command is internal or external
-    if (is_internal_command(command_name) == 1){
-        // run the internal command
-        // there must be a cleaner way to do this, this is just sad.
-        if(strcmp(command_name, "exit") == 0){
-            command_exit(commands, command, status);
-        }else if (strcmp(command_name, "pwd") == 0){
-            status = command_pwd(1);
-        }else if (strcmp(command_name, "cd") == 0){
-            status = command_cd(command);
-        }else if (strcmp(command_name, "ftype") == 0){
-            status = command_ftype(command);
-        }else{
-            // error handling
-            perror("error running internal command");
-            status = 1;
-        }
-    }else{
-        // make a new process
-        pid_t pid = fork();
-        if (pid == 0){
-            // child process
-            execvp(command_name, command);
-            exit(1);
-            // if the execvp function returns, there was an error:
-            perror("error executing the command");
-        }else{
-            // parent process
-            waitpid(pid, &status, 0);
-            status = WEXITSTATUS(status);
-       }
-*/
+
 /**
  * @brief run a single command
  * @param commands : the list of commands (only required for command_exit())
