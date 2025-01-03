@@ -1,10 +1,16 @@
 #include <stdlib.h> 
-#include <stdio.h>
 #include <unistd.h>
-#include <string.h>
 #include <sys/stat.h>
+// include our own files
+#include <ftype.h>
 
-int command_ftype(char** command){
+
+/**
+ * @brief Function that checks the type of a file.
+ * @param command the command to run
+ * @return 0 if successful, 1 otherwise
+ */
+int command_ftype(char** command) {
     struct stat st;
     if(lstat(command[1], &st) == 0){
         if(S_ISLNK(st.st_mode)){

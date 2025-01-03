@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wextra -g -Iinclude  # Compiler flags
 LDFLAGS = -lreadline  # Linker flags
 
 # Source files (add more as needed)
-SRCS = src/main.c  src/prompt.c src/tokenisation.c src/commands.c src/pwd.c src/exit.c src/cd.c src/ftype.c
+SRCS = src/main.c  src/prompt.c src/tokenisation.c src/commands.c src/pwd.c src/exit.c src/cd.c src/ftype.c src/if.c src/for.c
 OBJS = $(SRCS:src/%.c=build/%.o) # Object files in build directory
 
 # Executable name
