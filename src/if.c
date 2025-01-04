@@ -54,17 +54,11 @@ int run_if(char*** commands, int i, int last_val) {
     int status = last_val;
 
     // Init a new array to store the condition
-    char ***if_condition = malloc(sizeof(char**) * 2);
-    if (if_condition == NULL) {
-        perror("malloc");
-        return 1;
-    }
-    // Set the condition to the command after the "if" statement
-    if_condition[0] = commands[i] + 1;
-    if_condition[1] = NULL;
+    char ***if_condition = tokenise_cmds(commands[i][1]);
 
     // Run the condition
     status = run_commands(if_condition, status);
+    free_tokens(if_condition);
 
     if (status == 0) { // if the status is 0, then the condition is true
         // Init a new array to store the block of commands if the condition is true
@@ -81,7 +75,5 @@ int run_if(char*** commands, int i, int last_val) {
     } else {
         status = 0; // if there is no "else" statement, the status is 0
     }
-
-    free(if_condition);
     return status;
 }

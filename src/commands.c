@@ -410,6 +410,7 @@ int run_commands(char*** commands, int last_val){
     int dup_stdin = dup(STDIN_FILENO);
     int dup_stdout = dup(STDOUT_FILENO);
     int dup_stderr = dup(STDERR_FILENO);
+    // print_tokenised_cmds(commands);
     // setup descriptor array
     int total_cmds = length_of_total_input(commands);
     int** cmd_fd = malloc(sizeof(int*) * (total_cmds + 1));// +1 for the null terminator

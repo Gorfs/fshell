@@ -194,8 +194,10 @@ char*** tokenise_cmds(char* input) {
             goto error;
         }
         if (last_delimiter != NULL && strcmp(last_delimiter, "{") == 0) {
+            // On a trouvé une accolade ouvrante, on cherche une accolade fermante
             c_pointer = earliest_unmatched_closing_bracket(input);
         } else {
+            // On cherche une délimitation
             c_pointer = earliest_delimiter_index(input);
         }
         if(c_pointer == -1) {
@@ -210,14 +212,15 @@ char*** tokenise_cmds(char* input) {
         }
 
         if (c_pointer == 0) {
-            //On a trouvé un délimiteur au début de l'input
+            // On a trouvé un délimiteur au début de l'input
             delimiter_length = strlen(earliest_delimiter(input));
-            if (delimiter_length == 0) {
+            if (delimiter_length == 0) { // Error handling
                 perror("erreur de calcul de la longueur du délimiteur");
                 goto error;
             }
+            // On copie le délimiteur dans une nouvelle chaîne de caractères
             char* delimiter = malloc((delimiter_length + 1) * sizeof(char));
-            if (delimiter == NULL) {
+            if (delimiter == NULL) { // Error handling
                 perror("erreur d'allocation de mémoire");
                 goto error;
             }
@@ -242,7 +245,41 @@ char*** tokenise_cmds(char* input) {
             input += delimiter_length;
         } else {
             // On a trouvé un token avant le délimiteur
-            char* string_to_tokenise = malloc((c_pointer + 1) * sizeof(char));
+            char* string_to_tokenise;
+            if ((last_delimiter == NULL || strcmp(last_delimiter, "{") != 0) && strncmp(input, "if", strlen("if")) == 0) {
+                // l'input commence par "if" et n'est pas précédé d'une accolade ouvrante
+                result[cmd_index] = malloc(3 * sizeof(char*)); // On alloue de la mémoire pour 3 tokens
+                if (result[cmd_index] == NULL) { // Error handling
+                    perror("erreur d'allocation de mémoire");
+                    goto error;
+                }
+                result[cmd_index][0] = malloc(3 * sizeof(char)); // On alloue de la mémoire pour le token "if".
+                if (result[cmd_index][0] == NULL) { // Error handling
+                    perror("erreur d'allocation de mémoire");
+                    goto error;
+                }
+                strncpy(result[cmd_index][0], "if", 3); // On copie le token "if"
+                input += 3; // On avance le pointeur d'input pour ignorer "if".
+                c_pointer -= 3; // On décrémente la taille du token "if" de la taille du prochain délimiteur.
+
+                // Si le prochain caractère n'est pas le premier bloc de "if", on cherche le début du premier bloc.
+                if (input[c_pointer] != '{') while (input[c_pointer + 1] != '{' && input[c_pointer + 1] != '\0') c_pointer++;
+                // On alloue de la mémoire pour la condition du "if".
+                string_to_tokenise = malloc((c_pointer + 1) * sizeof(char));
+                if (string_to_tokenise == NULL) { // Error handling
+                    perror("erreur d'allocation de mémoire");
+                    goto error;
+                }
+                strncpy(string_to_tokenise, input, c_pointer); // On copie la condition du "if".
+                string_to_tokenise[c_pointer] = '\0';
+                result[cmd_index][1] = string_to_tokenise; // On ajoute la condition du "if" aux tokens.
+                result[cmd_index][2] = NULL; // On termine le tableau de tokens.
+                cmd_index++;
+                input += c_pointer;
+                continue; // On passe à la prochaine itération de la boucle.
+            }
+
+            string_to_tokenise = malloc((c_pointer + 1) * sizeof(char));
             if (string_to_tokenise == NULL) { // Error handling
                 perror("erreur d'allocation de mémoire");
                 goto error;
