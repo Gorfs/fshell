@@ -1,5 +1,6 @@
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,21 +11,51 @@
 #include <prompt.h>
 #include <tokenisation.h>
 
+
+// value of the last command executed, volatile because it's modified by the signal handler
+volatile sig_atomic_t last_val = 0;
+volatile sig_atomic_t is_sig = 0;
+int signals[2] = {SIGINT, SIGTERM}; // signals to handle
+
+
+void signal_handler(int sig) {
+    if (sig == SIGINT) {
+        last_val = 255; // set the last value to 255
+        is_sig = 1;
+    } else if (sig == SIGTERM) {
+        return; // Ignore SIGTERM
+    }
+}
+
+
+void init_signal_handler() {
+    struct sigaction action;
+    action.sa_flags = 0;
+    sigemptyset(&action.sa_mask);
+    action.sa_handler = signal_handler;
+    sigaction(SIGINT, &action, NULL);
+    sigaction(SIGTERM, &action, NULL);
+}
+
+
 /**
  * @brief Main function of the shell that continuously reads input from the user
  * @return the value of the last command used before exiting
  */
 int main() {
-    int last_val = 0; // value of the last command executed
-    char *prompt = NULL;
+    char *prompt = NULL; // initialise the prompt
 
     if (atexit(cleanup) != 0) { // Register the cleanup function
         perror("atexit failed");
         return 1;
     }
 
+    // initialise the signal handler
+    init_signal_handler();
+
     while (1) {
-        prompt = getPrompt(last_val);
+        prompt = getPrompt(last_val, is_sig);
+        is_sig = 0; // reset the signal boolean
         if (prompt == NULL) {
             perror("error getting prompt in main.c");
             return 1;
