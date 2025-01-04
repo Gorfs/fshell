@@ -16,11 +16,10 @@ const char* reset = "\001\033[00m\002";
 
 /**
  * @brief Function that returns the prompt for the shell.
- * @param last_val the value of the last command
- * @param is_sig 1 if there was a signal between the last prompt and this one, 0 otherwise
+ * @param last_val
  * @return returns 1 if an error occurs, 0 otherwise
  */
-char *getPrompt(int last_val, int is_sig){
+char *getPrompt(int last_val){
     char* prompt = NULL;
     char* current_working_directory = getcwd(NULL, 0);
 
@@ -31,10 +30,7 @@ char *getPrompt(int last_val, int is_sig){
         // Shorten the prompt if the path is too long
         size_t max_size_cwd = 25 - 3; // -3 for the "..." that will be added
         size_t last_val_len = 0;
-        if (is_sig == 1) {
-            // 3 characters long to write "SIG", not 3 cuz we don't add to the size if last_val is between 0 and 9
-            last_val_len = 2;
-        } else if (last_val != 0) {
+        if (last_val != 0) {
             size_t temp = last_val;
             while (temp > 10) {
                 temp /= 10;
@@ -68,12 +64,8 @@ char *getPrompt(int last_val, int is_sig){
         } else {
             val_color = "\001\033[91m\002"; // red for error
         }
-        if (is_sig == 1) {
-            snprintf(prompt, prompt_len, "%s[SIG]%s%s%s%s", val_color, cwd_color, current_working_directory, reset, prompt_suffix);
-        } else {
-            // Construct the prompt using snprintf
-            snprintf(prompt, prompt_len, "%s[%d]%s%s%s%s",val_color ,last_val, cwd_color, current_working_directory, reset, prompt_suffix);
-        }
+        // Construct the prompt using snprintf
+        snprintf(prompt, prompt_len, "%s[%d]%s%s%s%s",val_color ,last_val, cwd_color, current_working_directory, reset, prompt_suffix);
     }
 
     // function executed successfully
