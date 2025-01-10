@@ -400,13 +400,16 @@ int run_for(char*** commands, int i, int last_val){
             return 1;
         }
         status = run_commands(tokens, status);
-        if (status > max_status){
+        if (status == -1) {
+            max_status = status;
+            break; // If SIGINT is caught, break the loop
+        } else if (status > max_status) {
             max_status = status;
         }
         free_tokens(tokens);
     }
 
-    for (int j = 0; list_of_path_files[j] != NULL; j++){
+    for (int j = 0; list_of_path_files[j] != NULL; j++) {
         free(list_of_path_files[j]);
     }
     free(list_of_path_files);

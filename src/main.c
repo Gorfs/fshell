@@ -15,26 +15,49 @@
 // value of the last command executed, volatile because it's modified by the signal handler
 volatile sig_atomic_t last_val = 0;
 volatile sig_atomic_t is_sig = 0;
-int signals[2] = {SIGINT, SIGTERM}; // signals to handle
 
 
 void signal_handler(int sig) {
-    if (sig == SIGINT) {
-        last_val = 255; // set the last value to 255
-        is_sig = 1;
-    } else if (sig == SIGTERM) {
-        return; // Ignore SIGTERM
+    last_val = 255; // set the last value to 255
+    is_sig = 1;
+}
+
+
+void setup_signal_handlers() {
+    struct sigaction action;
+
+    // Configurer gestionnaire pour SIGINT
+    action.sa_handler = signal_handler;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0; // Pas de comportement spécial
+    if (sigaction(SIGINT, &action, NULL) == -1) {
+        perror("Erreur sigaction(SIGINT)");
+        exit(EXIT_FAILURE);
+    }
+
+    // Ignorer SIGTERM
+    action.sa_handler = SIG_IGN;
+    if (sigaction(SIGTERM, &action, NULL) == -1) {
+        perror("Erreur sigaction(SIGTERM)");
+        exit(EXIT_FAILURE);
     }
 }
 
 
-void init_signal_handler() {
+void reset_signals() {
     struct sigaction action;
     action.sa_flags = 0;
+    action.sa_handler = SIG_DFL;
     sigemptyset(&action.sa_mask);
-    action.sa_handler = signal_handler;
-    sigaction(SIGINT, &action, NULL);
-    sigaction(SIGTERM, &action, NULL);
+
+    if (sigaction(SIGINT, &action, NULL) == -1) {
+        perror("Erreur sigaction(SIGINT)");
+        exit(EXIT_FAILURE);
+    }
+    if (sigaction(SIGTERM, &action, NULL) == -1) {
+        perror("Erreur sigaction(SIGTERM)");
+        exit(EXIT_FAILURE);
+    }
 }
 
 
@@ -50,8 +73,7 @@ int main() {
         return 1;
     }
 
-    // initialise the signal handler
-    init_signal_handler();
+    setup_signal_handlers(); // setup the signal handlers
 
     while (1) {
         prompt = getPrompt(last_val, is_sig);
@@ -81,14 +103,27 @@ int main() {
         for (i = 0; tokens != NULL && tokens[i] != NULL && tokens[i][0] != NULL; i++) {
             if (*tokens[i][0] == ';') {
                 tokens[i] = NULL;
+                // set up the signal mask before running the commands
+                // run the commands
                 last_val = run_commands(tokens + previous_cut_index + 1, last_val);
+                if (last_val == -1) {
+                    last_val = 255;
+                    is_sig = 1;
+                    break;
+                }
                 previous_cut_index = i;
                 i++;
             }
         }
         // run the last command
         if (tokens != NULL) {
+            // run the commands
             last_val = run_commands(tokens + previous_cut_index + 1, last_val);
+            if (last_val == -1 || last_val == -2) {
+                last_val = 255;
+                is_sig = 1;
+            }
+            // unblock the signals after running the commands
             free_tokens(tokens);
         }
     }
