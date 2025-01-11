@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
 // include our own files
 #include <commands.h>
 #include <exit.h>
@@ -343,7 +345,7 @@ int run_for(char*** commands, int i, int last_val){
     int recursive = 0;
     char* extension = NULL;
     char type = ' ';
-    int max_loops = -1;
+    int num_processes = -1;
 
     for (int j = 4; commands[i][j] != NULL; j++) {
         if (strcmp(commands[i][j], "-A") == 0) {
@@ -370,7 +372,7 @@ int run_for(char*** commands, int i, int last_val){
             }
         } else if (strcmp(commands[i][j], "-p") == 0) {
             if (commands[i][j+1] != NULL) {
-                max_loops = atoi(commands[i][j+1]);
+                num_processes = atoi(commands[i][j+1]);
                 j++;  // Skip the next element as it's the number
             }
         }
@@ -382,31 +384,89 @@ int run_for(char*** commands, int i, int last_val){
         return 1;
     }
 
+    int file_index = 0;
+    pid_t pids[num_processes];
+    int process_status[num_processes];
     int status = last_val;
     int max_status = 0;
 
-    for (int j = 0; list_of_path_files[j] != NULL && (max_loops == -1 || j < max_loops); j++){
-        char*** tokens = tokenise_cmds(commands[i+2][0]);
-        if (tokens == NULL){
-            perror("error in tokenise_cmds");
-            free(list_of_path_files);
-            return 1;
+    if (num_processes > 1){
+        while (list_of_path_files[file_index] != NULL){
+            for(int p = 0; p < num_processes && list_of_path_files[file_index] != NULL; p++){
+                pids[p] = fork();
+                if (pids[p] < 0){
+                    perror("error in fork");
+                    for (int k = 0; k < p; k++){
+                        waitpid(pids[k], &process_status[k],0);
+                    }
+                    free(list_of_path_files);
+                    return 1;
+                }
+                else if(pids[p] == 0){
+                    char*** tokens = tokenise_cmds(commands[i+2][0]);
+                    if (tokens == NULL){
+                        perror("error in tokenise_cmds");
+                        free(list_of_path_files);
+                        exit(1);
+                    }
+                    int success = replace_var_name_to_file_name(tokens, final_var_name, list_of_path_files[file_index]);
+                    if (success != 0){
+                        perror("error in replace_var_name_to_file_name");
+                        free_tokens(tokens);
+                        exit(1);
+                    }
+                    int child_status = run_commands(tokens, status);
+                    free_tokens(tokens);
+                    exit(child_status);
+                }
+                file_index++;
+            }
+
+            for (int p = 0; p < num_processes; p++){
+                if (pids[p] > 0){
+                    waitpid(pids[p],&process_status[p],0);
+                    if(WIFEXITED(process_status[p])){
+                        int child_status = WEXITSTATUS(process_status[p]);
+                        if (child_status == -1){
+                            max_status = child_status;
+                            break;
+                        }
+                        else if(child_status > max_status){
+                            max_status = child_status;
+                        }
+                    }
+                }
+            }
+
+            if(max_status == 1){
+                break;
+            }
         }
-        int success = replace_var_name_to_file_name(tokens, final_var_name, list_of_path_files[j]);
-        if (success != 0){
-            perror("error in replace_var_name_to_file_name");
-            free(list_of_path_files);
-            free(tokens);
-            return 1;
+    }
+    else{
+        for (int j = 0; list_of_path_files[j] != NULL; j++){
+            char*** tokens = tokenise_cmds(commands[i+2][0]);
+            if (tokens == NULL){
+                perror("error in tokenise_cmds");
+                free(list_of_path_files);
+                return 1;
+            }
+            int success = replace_var_name_to_file_name(tokens, final_var_name, list_of_path_files[j]);
+            if (success != 0){
+                perror("error in replace_var_name_to_file_name");
+                free(list_of_path_files);
+                free(tokens);
+                return 1;
+            }
+            status = run_commands(tokens, status);
+            if (status == -1) {
+                max_status = status;
+                break; // If SIGINT is caught, break the loop
+            } else if (status > max_status) {
+                max_status = status;
+            }
+            free_tokens(tokens);
         }
-        status = run_commands(tokens, status);
-        if (status == -1) {
-            max_status = status;
-            break; // If SIGINT is caught, break the loop
-        } else if (status > max_status) {
-            max_status = status;
-        }
-        free_tokens(tokens);
     }
 
     for (int j = 0; list_of_path_files[j] != NULL; j++) {
