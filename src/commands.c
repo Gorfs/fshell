@@ -39,6 +39,13 @@ int is_fd_valid(int fd) {
 }
 
 
+void print_file_descriptors(int** fdArray){
+    for(int i = 0 ; fdArray[i] != NULL; i++){
+        printf("fdArray[%d] = [%d, %d, %d]\n", i, fdArray[i][0], fdArray[i][1], fdArray[i][2]);
+    }
+}
+
+
 /**
  * @brief Function that checks if a string is in a list of strings.
  * @param str  the string to check, supposed to be not NULL
@@ -291,6 +298,7 @@ int setup_file_descriptors(char*** commands, int** fdArray) {
             int* fd = handle_pipe();
             fdArray[cmd_index][1] = fd[1];
             fdArray[cmd_index+1][0] = fd[0];
+            free(fd); // free the pointer
             cmd_index++;
         }
 
@@ -324,11 +332,13 @@ int setup_file_descriptors(char*** commands, int** fdArray) {
  * @param commands  the list of commands (only required for command_exit())
  * @param command   the command to run
  * @param last_val  the value of the last command
- * @param input_fd  the input file descriptor
- * @param output_fd the output file descriptor
+ * @param fd an array of file descriptors for input, output and error
  * @return the value of the last command
  */
-int run_command(char*** commands, char** command, int last_val, int input_fd, int output_fd, int error_fd) {
+int run_command(char*** commands, char** command, int last_val, int* fd) {
+    int input_fd = fd[0];
+    int output_fd = fd[1];
+    int error_fd = fd[2];
     // check if the output file descriptor is valid
     if (output_fd == -1) return 1;
     if (error_fd == -1) return 1;
@@ -454,23 +464,20 @@ int run_commands(char*** commands, int last_val){
             // pipe, so we fork()
             if (fork() == 0) {
                 // child
-                last_val = run_command(commands, commands[i], last_val, cmd_fd[i][0],
-                                       cmd_fd[i][1], cmd_fd[i][2]);
+                last_val = run_command(commands, commands[i], last_val, cmd_fd[cmd_index]);
                 exit(last_val);
-            } else {
-                // parent
-                wait(NULL);
-                // close file descriptors now that the child is done
-                if (cmd_fd[i][0] != STDIN_FILENO) close(cmd_fd[i][0]);
-                if (cmd_fd[i][1] != STDOUT_FILENO) close(cmd_fd[i][1]);
-                if (cmd_fd[i][2] != STDERR_FILENO) close(cmd_fd[i][2]);
-
-                cmd_index++;
             }
+            // parent
+            wait(NULL);
+            // close file descriptors now that the child is done
+            if (cmd_fd[cmd_index][0] != STDIN_FILENO) close(cmd_fd[cmd_index][0]);
+            if (cmd_fd[cmd_index][1] != STDOUT_FILENO) close(cmd_fd[cmd_index][1]);
+            if (cmd_fd[cmd_index][2] != STDERR_FILENO) close(cmd_fd[cmd_index][2]);
+
+            cmd_index++;
         } else {
             // no pipe, so we run the command
-            last_val = run_command(commands, commands[i], last_val, cmd_fd[cmd_index][0],
-                                   cmd_fd[cmd_index][1], cmd_fd[cmd_index][2]);
+            last_val = run_command(commands, commands[i], last_val, cmd_fd[cmd_index]);
             cmd_index++;
             // if the next delimiter is a redirection, we skip the next delimiter, and the file name
             if (commands[i+1] != NULL && is_redirection_delimiter(commands[i+1][0]) == 1) {
