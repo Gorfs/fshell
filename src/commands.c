@@ -24,6 +24,11 @@ char* internal_commands[] = {"exit", "pwd", "cd", "ftype", NULL};
 char* redirection_delimiters[] = {">", ">>", "<", "<<","|>",">|", "|>>", "2>", "2>>","2>|", NULL};
 
 
+void command_signal(int sig) {
+    exit(sig);
+}
+
+
 /**
  * @brief Function that checks if the file descriptor is valid.
  * @param fd the file descriptor to check
@@ -392,12 +397,24 @@ int run_command(char*** commands, char** command, int last_val, int* fd) {
     } else { // Make a new process for external commands
         pid_t pid = fork();
         if (pid == 0) { // Child process
+            struct sigaction sa;
+            sa.sa_handler = command_signal;
+            sigemptyset(&sa.sa_mask);
+            sa.sa_flags = 0;
+            sigaction(SIGINT, &sa, NULL);
+            sa.sa_handler = SIG_DFL;
+            sigaction(SIGTERM, &sa, NULL);
+
             execvp(command_name, command);
             perror("error executing the command");
             exit(1);
         } else if (pid > 0) { // Parent process
-            wait(&status);
-            status = WEXITSTATUS(status);
+            waitpid(pid, &status, 0);
+            // check if the process was terminated by a signal
+            if (WIFSIGNALED(status)) {
+                if (WTERMSIG(status) == SIGINT) status = -1; // to differentiate from value 255 and print SIG in the prompt
+                else if (WTERMSIG(status) == SIGTERM) status = -2;
+            } else status = WEXITSTATUS(status);
         } else { // Error handling
             perror("fork");
             status = 1;
@@ -417,6 +434,7 @@ int run_command(char*** commands, char** command, int last_val, int* fd) {
  * @return the value of the last command
  */
 int run_commands(char*** commands, int last_val){
+    if (last_val == -1) return last_val; // if the last command was interrupted by a signal
     int dup_stdin = dup(STDIN_FILENO);
     int dup_stdout = dup(STDOUT_FILENO);
     int dup_stderr = dup(STDERR_FILENO);
@@ -488,6 +506,7 @@ int run_commands(char*** commands, int last_val){
                 i++;
             }
         }
+        if (last_val == -1) break; // if the last command was interrupted by SIGINT
     }
 
     // clean up potential pipes
