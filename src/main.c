@@ -1,8 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 // include our own files
 #include <cd.h>
@@ -17,7 +17,7 @@ volatile sig_atomic_t last_val = 0;
 volatile sig_atomic_t is_sig = 0;
 
 
-void signal_handler(int sig) {
+void signal_handler() {
     last_val = 255; // set the last value to 255
     is_sig = 1;
 }
@@ -83,6 +83,7 @@ int main() {
             perror("error getting prompt in main.c");
             return 1;
         }
+
         rl_outstream = stderr;
 
         char *input = readline(prompt);
