@@ -13,6 +13,7 @@
 #include <exit.h>
 #include <for.h>
 #include <ftype.h>
+#include <pipeline.h>
 #include <tokenisation.h>
 #include <pwd.h>
 #include <if.h>
@@ -40,6 +41,13 @@ int is_fd_valid(int fd) {
         return -1;  // Invalid file descriptor
     } else {
         return 0;   // Valid file descriptor
+    }
+}
+
+
+void print_file_descriptors(int** fdArray){
+    for(int i = 0 ; fdArray[i] != NULL; i++){
+        printf("fdArray[%d] = [%d, %d, %d]\n", i, fdArray[i][0], fdArray[i][1], fdArray[i][2]);
     }
 }
 
@@ -153,7 +161,7 @@ int* handle_pipe() {
 /**
  * @brief Function that handles the redirection.
  * @param delimiter string of the delimiter
- * @param filepath string representing th
+ * @param filepath string representing the file path
  * @return an array of 3 integers, the first one is the input file descriptor,
  */
 int* handle_redirection(char* delimiter, char* filepath){
@@ -169,7 +177,7 @@ int* handle_redirection(char* delimiter, char* filepath){
     if (strcmp(delimiter, ">") == 0) {
         // check if the file already exists
         if (access(filepath, F_OK) != -1) {
-            write(STDERR_FILENO, "pipeline_run:␣File␣exists\n", 30);
+            write(STDERR_FILENO, "pipeline_run: File exists\n", 27);
             fd[1] = -1;
         } else {
             if(create_directory_file(filepath) == -1) { // try to create the file
@@ -183,7 +191,7 @@ int* handle_redirection(char* delimiter, char* filepath){
         fd[0] = open(filepath, O_RDONLY);
     } else if (strcmp(delimiter, "2>") == 0) { // standard error redirection
         if(access(filepath, F_OK) != -1) { // check if the file already exists
-            write(STDERR_FILENO, "pipeline_run:␣File␣exists", 26);
+            write(STDERR_FILENO, "pipeline_run: File exists", 26);
             fd[2] = -1;
         } else {
             if(create_directory_file(filepath) == -1) { // try to create the file
@@ -296,6 +304,7 @@ int setup_file_descriptors(char*** commands, int** fdArray) {
             int* fd = handle_pipe();
             fdArray[cmd_index][1] = fd[1];
             fdArray[cmd_index+1][0] = fd[0];
+            free(fd); // free the pointer
             cmd_index++;
         }
 
@@ -329,11 +338,13 @@ int setup_file_descriptors(char*** commands, int** fdArray) {
  * @param commands  the list of commands (only required for command_exit())
  * @param command   the command to run
  * @param last_val  the value of the last command
- * @param input_fd  the input file descriptor
- * @param output_fd the output file descriptor
+ * @param fd an array of file descriptors for input, output and error
  * @return the value of the last command
  */
-int run_command(char*** commands, char** command, int last_val, int input_fd, int output_fd, int error_fd) {
+int run_command(char*** commands, char** command, int last_val, int* fd) {
+    int input_fd = fd[0];
+    int output_fd = fd[1];
+    int error_fd = fd[2];
     // check if the output file descriptor is valid
     if (output_fd == -1) return 1;
     if (error_fd == -1) return 1;
@@ -353,18 +364,21 @@ int run_command(char*** commands, char** command, int last_val, int input_fd, in
             perror("dup2");
             return 1;
         }
+        close(output_fd);
     }
     if (input_fd != STDIN_FILENO) {
         if (dup2(input_fd, STDIN_FILENO) == -1){
             perror("dup2");
             return 1;
         }
+        close(input_fd);
     }
     if(error_fd != STDERR_FILENO){
         if(dup2(error_fd, STDERR_FILENO) == -1){
             perror("dup2");
             return 1;
         }
+        close(error_fd);
     }
   
     int status = last_val;
@@ -423,7 +437,7 @@ int run_command(char*** commands, char** command, int last_val, int input_fd, in
  * @param last_val : the value of the last command
  * @return the value of the last command
  */
-int run_commands(char*** commands, int last_val){
+int run_commands(char*** commands, int last_val) {
     if (last_val == -1) return last_val; // if the last command was interrupted by a signal
     int dup_stdin = dup(STDIN_FILENO);
     int dup_stdout = dup(STDOUT_FILENO);
@@ -449,7 +463,8 @@ int run_commands(char*** commands, int last_val){
         perror("error setting up file descriptors");
         return 1;
     }
-  
+    // print_file_descriptors(cmd_fd);
+
     for (int i = 0; commands[i] != NULL; i++) {
         // close previous commands file discriptors
         // base case
@@ -469,26 +484,11 @@ int run_commands(char*** commands, int last_val){
                 while (commands[i] != NULL && strcmp(commands[i][0], "}") != 0) i++; // skip the to the end of the else block
             }
         } else if (commands[i + 1] != NULL && strcmp(commands[i+1][0], "|") == 0) { // if the next delimiter is a pipe
-            // pipe, so we fork()
-            if (fork() == 0) {
-                // child
-                last_val = run_command(commands, commands[i], last_val, cmd_fd[i][0],
-                                       cmd_fd[i][1], cmd_fd[i][2]);
-                exit(last_val);
-            } else {
-                // parent
-                wait(NULL);
-                // close file descriptors now that the child is done
-                if (cmd_fd[i][0] != STDIN_FILENO) close(cmd_fd[i][0]);
-                if (cmd_fd[i][1] != STDOUT_FILENO) close(cmd_fd[i][1]);
-                if (cmd_fd[i][2] != STDERR_FILENO) close(cmd_fd[i][2]);
-
-                cmd_index++;
-            }
+            last_val = run_pipeline(commands, last_val, i, total_cmds, cmd_fd);
+            break;
         } else {
             // no pipe, so we run the command
-            last_val = run_command(commands, commands[i], last_val, cmd_fd[cmd_index][0],
-                                   cmd_fd[cmd_index][1], cmd_fd[cmd_index][2]);
+            last_val = run_command(commands, commands[i], last_val, cmd_fd[cmd_index]);
             cmd_index++;
             // if the next delimiter is a redirection, we skip the next delimiter, and the file name
             if (commands[i+1] != NULL && is_redirection_delimiter(commands[i+1][0]) == 1) {
