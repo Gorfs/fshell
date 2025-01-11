@@ -13,6 +13,7 @@
 #include <exit.h>
 #include <for.h>
 #include <ftype.h>
+#include <pipeline.h>
 #include <tokenisation.h>
 #include <pwd.h>
 #include <if.h>
@@ -160,7 +161,7 @@ int* handle_pipe() {
 /**
  * @brief Function that handles the redirection.
  * @param delimiter string of the delimiter
- * @param filepath string representing th
+ * @param filepath string representing the file path
  * @return an array of 3 integers, the first one is the input file descriptor,
  */
 int* handle_redirection(char* delimiter, char* filepath){
@@ -176,7 +177,7 @@ int* handle_redirection(char* delimiter, char* filepath){
     if (strcmp(delimiter, ">") == 0) {
         // check if the file already exists
         if (access(filepath, F_OK) != -1) {
-            write(STDERR_FILENO, "pipeline_run:␣File␣exists\n", 30);
+            write(STDERR_FILENO, "pipeline_run: File exists\n", 27);
             fd[1] = -1;
         } else {
             if(create_directory_file(filepath) == -1) { // try to create the file
@@ -190,7 +191,7 @@ int* handle_redirection(char* delimiter, char* filepath){
         fd[0] = open(filepath, O_RDONLY);
     } else if (strcmp(delimiter, "2>") == 0) { // standard error redirection
         if(access(filepath, F_OK) != -1) { // check if the file already exists
-            write(STDERR_FILENO, "pipeline_run:␣File␣exists", 26);
+            write(STDERR_FILENO, "pipeline_run: File exists", 26);
             fd[2] = -1;
         } else {
             if(create_directory_file(filepath) == -1) { // try to create the file
@@ -363,18 +364,21 @@ int run_command(char*** commands, char** command, int last_val, int* fd) {
             perror("dup2");
             return 1;
         }
+        close(output_fd);
     }
     if (input_fd != STDIN_FILENO) {
         if (dup2(input_fd, STDIN_FILENO) == -1){
             perror("dup2");
             return 1;
         }
+        close(input_fd);
     }
     if(error_fd != STDERR_FILENO){
         if(dup2(error_fd, STDERR_FILENO) == -1){
             perror("dup2");
             return 1;
         }
+        close(error_fd);
     }
   
     int status = last_val;
@@ -433,12 +437,12 @@ int run_command(char*** commands, char** command, int last_val, int* fd) {
  * @param last_val : the value of the last command
  * @return the value of the last command
  */
-int run_commands(char*** commands, int last_val){
+int run_commands(char*** commands, int last_val) {
     if (last_val == -1) return last_val; // if the last command was interrupted by a signal
     int dup_stdin = dup(STDIN_FILENO);
     int dup_stdout = dup(STDOUT_FILENO);
     int dup_stderr = dup(STDERR_FILENO);
-    // print_tokenised_cmds(commands);
+    print_tokenised_cmds(commands);
     // setup descriptor array
     int total_cmds = length_of_total_input(commands);
     int** cmd_fd = malloc(sizeof(int*) * (total_cmds + 1));// +1 for the null terminator
@@ -459,7 +463,8 @@ int run_commands(char*** commands, int last_val){
         perror("error setting up file descriptors");
         return 1;
     }
-  
+    print_file_descriptors(cmd_fd);
+
     for (int i = 0; commands[i] != NULL; i++) {
         // close previous commands file discriptors
         // base case
@@ -479,20 +484,20 @@ int run_commands(char*** commands, int last_val){
                 while (commands[i] != NULL && strcmp(commands[i][0], "}") != 0) i++; // skip the to the end of the else block
             }
         } else if (commands[i + 1] != NULL && strcmp(commands[i+1][0], "|") == 0) { // if the next delimiter is a pipe
-            // pipe, so we fork()
-            if (fork() == 0) {
-                // child
-                last_val = run_command(commands, commands[i], last_val, cmd_fd[cmd_index]);
+            pid_t pid = fork();
+            if (pid == 0) {
+                // print_file_descriptors(cmd_fd);
+                last_val = run_pipeline(commands, last_val, i, total_cmds, cmd_fd);
                 exit(last_val);
+            } else {
+                waitpid(pid, &last_val, 0);
+                // check if the process was terminated by a signal
+                if (WIFSIGNALED(last_val)) {
+                    if (WTERMSIG(last_val) == SIGINT) last_val = -1; // to differentiate from value 255 and print SIG in the prompt
+                    else if (WTERMSIG(last_val) == SIGTERM) last_val = -2;
+                } else last_val = WEXITSTATUS(last_val);
+                break;
             }
-            // parent
-            wait(NULL);
-            // close file descriptors now that the child is done
-            if (cmd_fd[cmd_index][0] != STDIN_FILENO) close(cmd_fd[cmd_index][0]);
-            if (cmd_fd[cmd_index][1] != STDOUT_FILENO) close(cmd_fd[cmd_index][1]);
-            if (cmd_fd[cmd_index][2] != STDERR_FILENO) close(cmd_fd[cmd_index][2]);
-
-            cmd_index++;
         } else {
             // no pipe, so we run the command
             last_val = run_command(commands, commands[i], last_val, cmd_fd[cmd_index]);
