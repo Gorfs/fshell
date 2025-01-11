@@ -195,9 +195,9 @@ char*** tokenise_pipeline(char* input) {
                 perror("error allocating space in tokenisation.c");
                 goto error;
             }
-            strcpy(string_to_tokenise, input);
+            strncpy(string_to_tokenise, input, strlen(input));
+            string_to_tokenise[strlen(input)] = '\0';
             result[res_i][0] = string_to_tokenise;
-            result[res_i][1] = NULL;
             input += strlen(input);
         } else if (next_delimiter == 0) { // Delimiter at the beginning of the string
             result[res_i][0] = malloc(2 * sizeof(char)); // "|" + null terminator
@@ -206,7 +206,6 @@ char*** tokenise_pipeline(char* input) {
                 goto error;
             }
             strncpy(result[res_i][0], "|", 2);
-            result[res_i][1] = NULL;
             input += 1; // skip the delimiter
         } else {
             string_to_tokenise = malloc((next_delimiter + 1) * sizeof(char));
@@ -217,24 +216,24 @@ char*** tokenise_pipeline(char* input) {
             strncpy(string_to_tokenise, input, next_delimiter);
             string_to_tokenise[next_delimiter] = '\0';
             result[res_i][0] = string_to_tokenise;
-            result[res_i][1] = NULL;
             input += next_delimiter; // skip the string we just tokenised
         }
         res_max_size++;
+        result[res_i][1] = NULL;
         res_i++;
     }
     result[res_i] = NULL; // null terminate the array
     return result;
 
     error:
-    for (int i = 0; i < res_i; i++) {
-        for (int j = 0; result[i][j] != NULL; j++) {
-            free(result[i][j]);
+        for (int i = 0; i < res_i; i++) {
+            for (int j = 0; result[i][j] != NULL; j++) {
+                free(result[i][j]);
+            }
+            free(result[i]);
         }
-        free(result[i]);
-    }
-    free(result);
-    return NULL;
+        free(result);
+        return NULL;
 }
 
 
@@ -246,6 +245,9 @@ char*** tokenise_pipeline(char* input) {
  *  */ 
 char*** tokenise_cmds(char* input) {
     if (input == NULL || strlen(input) == 0) return NULL;
+    if (detect_pipeline(input) > 0) { // detected a "|" delimiter
+        return tokenise_pipeline(input);
+    }
     char*** result = malloc(2 * sizeof(char**)); // minimum space required for the result + it's null terminator
     if(result == NULL) { // Error handling
         perror("error allocating space in tokenisation.c");
@@ -258,11 +260,6 @@ char*** tokenise_cmds(char* input) {
 
     int delimiter_length = 0;
     int c_pointer = 0;
-
-    if (detect_pipeline(input) > 0) { // detected a "|" delimiter
-        free(result);
-        return tokenise_pipeline(input);
-    }
 
     while(*input) {
         while (input[0] == ' ') input++; // skip leading spaces

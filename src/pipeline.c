@@ -9,9 +9,10 @@
 #include <commands.h>
 #include <pipeline.h>
 #include <tokenisation.h>
+#include <exit.h>
 
 
-int run_one_pipe(char **cmd, int last_val, int *fd) {
+int run_one_pipe(char ***new_cmd, int last_val, int *fd) {
     int input_fd = fd[0];
     int output_fd = fd[1];
 
@@ -31,7 +32,6 @@ int run_one_pipe(char **cmd, int last_val, int *fd) {
         close(input_fd);
     }
 
-    char *** new_cmd = tokenise_cmds(cmd[0]); // tokenise the command
     last_val = run_commands(new_cmd, last_val); // run the command
     return last_val;
 }
@@ -54,6 +54,12 @@ int run_pipeline(char ***commands, int last_val, int i, int total_cmds, int **cm
     }
     int status = last_val;
     for (int j = 0; j < total_cmds; j++) {
+        char *** new_cmd = tokenise_cmds(commands[i][0]); // tokenise the command
+        if (new_cmd == NULL) {
+            perror("error tokenising the command");
+            free(pids);
+            return 1;
+        }
         pids[j] = fork();
         if (pids[j] == -1) {
             perror("fork");
@@ -62,9 +68,11 @@ int run_pipeline(char ***commands, int last_val, int i, int total_cmds, int **cm
         }
 
         if (pids[j] == 0) { // child process number [j]
-            last_val = run_one_pipe(commands[i], last_val, cmd_fd[j]); // run the command
+            last_val = run_one_pipe(new_cmd, last_val, cmd_fd[j]); // run the command
+            free_tokens(new_cmd); // free the tokens
             exit(last_val); // exit the child process
         }
+        free_tokens(new_cmd); // free the tokens
         // parent process update the indexes
         i += 2;
     }

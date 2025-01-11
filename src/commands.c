@@ -442,7 +442,7 @@ int run_commands(char*** commands, int last_val) {
     int dup_stdin = dup(STDIN_FILENO);
     int dup_stdout = dup(STDOUT_FILENO);
     int dup_stderr = dup(STDERR_FILENO);
-    print_tokenised_cmds(commands);
+    // print_tokenised_cmds(commands);
     // setup descriptor array
     int total_cmds = length_of_total_input(commands);
     int** cmd_fd = malloc(sizeof(int*) * (total_cmds + 1));// +1 for the null terminator
@@ -463,7 +463,7 @@ int run_commands(char*** commands, int last_val) {
         perror("error setting up file descriptors");
         return 1;
     }
-    print_file_descriptors(cmd_fd);
+    // print_file_descriptors(cmd_fd);
 
     for (int i = 0; commands[i] != NULL; i++) {
         // close previous commands file discriptors
@@ -484,20 +484,8 @@ int run_commands(char*** commands, int last_val) {
                 while (commands[i] != NULL && strcmp(commands[i][0], "}") != 0) i++; // skip the to the end of the else block
             }
         } else if (commands[i + 1] != NULL && strcmp(commands[i+1][0], "|") == 0) { // if the next delimiter is a pipe
-            pid_t pid = fork();
-            if (pid == 0) {
-                // print_file_descriptors(cmd_fd);
-                last_val = run_pipeline(commands, last_val, i, total_cmds, cmd_fd);
-                exit(last_val);
-            } else {
-                waitpid(pid, &last_val, 0);
-                // check if the process was terminated by a signal
-                if (WIFSIGNALED(last_val)) {
-                    if (WTERMSIG(last_val) == SIGINT) last_val = -1; // to differentiate from value 255 and print SIG in the prompt
-                    else if (WTERMSIG(last_val) == SIGTERM) last_val = -2;
-                } else last_val = WEXITSTATUS(last_val);
-                break;
-            }
+            last_val = run_pipeline(commands, last_val, i, total_cmds, cmd_fd);
+            break;
         } else {
             // no pipe, so we run the command
             last_val = run_command(commands, commands[i], last_val, cmd_fd[cmd_index]);
