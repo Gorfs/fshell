@@ -68,6 +68,13 @@ int run_pipeline(char ***commands, int last_val, int i, int total_cmds, int **cm
         }
 
         if (pids[j] == 0) { // child process number [j]
+            for (int k = 0; k < total_cmds; k++) {
+                if (k != j) {
+                    close(cmd_fd[k][0]);
+                    close(cmd_fd[k][1]);
+                    close(cmd_fd[k][2]);
+                }
+            }
             last_val = run_one_pipe(new_cmd, last_val, cmd_fd[j]); // run the command
             free_tokens(new_cmd); // free the tokens
             exit(last_val); // exit the child process
@@ -75,6 +82,13 @@ int run_pipeline(char ***commands, int last_val, int i, int total_cmds, int **cm
         free_tokens(new_cmd); // free the tokens
         // parent process update the indexes
         i += 2;
+    }
+
+    for (int j = 0; j < total_cmds; j++) {
+        // close file descriptors now that the child is done
+        close(cmd_fd[j][0]);
+        close(cmd_fd[j][1]);
+        close(cmd_fd[j][2]);
     }
 
     for (int j = 0; j < total_cmds; j++) {
@@ -86,11 +100,6 @@ int run_pipeline(char ***commands, int last_val, int i, int total_cmds, int **cm
         } else {
             status = WEXITSTATUS(status);
         }
-
-        // close file descriptors now that the child is done
-        if (cmd_fd[j][0] != STDIN_FILENO) close(cmd_fd[j][0]);
-        if (cmd_fd[j][1] != STDOUT_FILENO) close(cmd_fd[j][1]);
-        if (cmd_fd[j][2] != STDERR_FILENO) close(cmd_fd[j][2]);
     }
 
     free(pids); // all the children are done
