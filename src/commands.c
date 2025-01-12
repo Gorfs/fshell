@@ -44,7 +44,9 @@ int is_fd_valid(int fd) {
     }
 }
 
-
+/**
+ * @brief Print the file descriptors, only for debugging purposes.
+ */
 void print_file_descriptors(int** fdArray){
     for(int i = 0 ; fdArray[i] != NULL; i++){
         printf("fdArray[%d] = [%d, %d, %d]\n", i, fdArray[i][0], fdArray[i][1], fdArray[i][2]);
@@ -442,7 +444,6 @@ int run_commands(char*** commands, int last_val) {
     int dup_stdin = dup(STDIN_FILENO);
     int dup_stdout = dup(STDOUT_FILENO);
     int dup_stderr = dup(STDERR_FILENO);
-    // print_tokenised_cmds(commands);
     // setup descriptor array
     int total_cmds = length_of_total_input(commands);
     int** cmd_fd = malloc(sizeof(int*) * (total_cmds + 1));// +1 for the null terminator
@@ -463,7 +464,6 @@ int run_commands(char*** commands, int last_val) {
         perror("error setting up file descriptors");
         return 1;
     }
-    // print_file_descriptors(cmd_fd);
 
     for (int i = 0; commands[i] != NULL; i++) {
         // close previous commands file discriptors

@@ -348,6 +348,10 @@ int run_for(char*** commands, int i, int last_val){
     int num_processes = -1;
 
     for (int j = 4; commands[i][j] != NULL; j++) {
+        if (strchr(commands[i][j], '-') == NULL){
+            perror("for loop must have a valid parameter");
+            return 2;
+        }
         if (strcmp(commands[i][j], "-A") == 0) {
             hidden_files = 1;
         } else if (strcmp(commands[i][j], "-r") == 0) {
@@ -390,8 +394,9 @@ int run_for(char*** commands, int i, int last_val){
     int status = last_val;
     int max_status = 0;
 
-    if (num_processes > 1){
+    if (num_processes > 1){ //we need to parallelize
         while (list_of_path_files[file_index] != NULL){
+            //we make a batch of num_processes forks, each will execute his command with his own file
             for(int p = 0; p < num_processes && list_of_path_files[file_index] != NULL; p++){
                 pids[p] = fork();
                 if (pids[p] < 0){
@@ -421,7 +426,7 @@ int run_for(char*** commands, int i, int last_val){
                 }
                 file_index++;
             }
-
+            //we wait for the batch to finish before making a new one
             for (int p = 0; p < num_processes; p++){
                 if (pids[p] > 0){
                     waitpid(pids[p],&process_status[p],0);
@@ -443,7 +448,7 @@ int run_for(char*** commands, int i, int last_val){
             }
         }
     }
-    else{
+    else{ //we don't need to parallelize, we don't want to make forks.
         for (int j = 0; list_of_path_files[j] != NULL; j++){
             char*** tokens = tokenise_cmds(commands[i+2][0]);
             if (tokens == NULL){

@@ -404,8 +404,7 @@ char*** tokenise_cmds(char* input) {
 
 
 /**
- * @brief Function that prints the result of the tokenisation.
- * // TODO: for debugging purposes, to remove later
+ * @brief Function that prints the result of the tokenisation, for debugging purposes only.
  * @param tokenised_cmds array of tokenised commands
  */
 void print_tokenised_cmds(char ***tokenised_cmds) {

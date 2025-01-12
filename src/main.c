@@ -97,7 +97,6 @@ int main() {
 
         if (input != NULL) free(input); // free the input if it's not null
         free(prompt); // free the prompt to reset it for the next iteration
-
         // seperate the commands in between the ; delimiters
         int i = 0;
         int previous_cut_index = -1;
