@@ -516,6 +516,9 @@ int run_commands(char*** commands, int last_val) {
     dup2(dup_stdin, STDIN_FILENO);
     dup2(dup_stdout, STDOUT_FILENO);
     dup2(dup_stderr, STDERR_FILENO);
+    close(dup_stdout);
+    close(dup_stdin);
+    close(dup_stderr);
 
     return last_val;
 }
